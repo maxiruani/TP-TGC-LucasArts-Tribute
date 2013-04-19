@@ -87,7 +87,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MiGrupo\EjemploAlumno.cs" />
+    <Compile Include="LucasArtsTribute\Car\Car.cs" />
+    <Compile Include="LucasArtsTribute\EjemploAlumno.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
