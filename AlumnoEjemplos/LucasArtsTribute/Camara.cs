@@ -19,7 +19,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             camaras = new Queue<Vector3>();
             camaras.Enqueue(nearCamara);
             camaras.Enqueue(farCamara);
-            camaras.Enqueue(insideCamara);
             ActualCamara = defaultCamara;
         }
 
@@ -56,7 +55,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             {
                 return;
             }
-
             float delta = GuiController.Instance.ElapsedTime * speed;
             if (delta > 1.0f) delta = 1.0f;
 

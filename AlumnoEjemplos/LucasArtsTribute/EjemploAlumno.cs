@@ -138,7 +138,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             cam.SetCenterTargetUp(CAM_DELTA, new Vector3(0, 0, 0), new Vector3(0, 1, 0), true);
             cam.Enable = true;
             GuiController.Instance.CurrentCamera = cam;
-            LoadCamera(true);
+            LoadCamara(true);
 
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
@@ -148,7 +148,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         }
 
-        private void LoadCamera(bool teleport)
+        private void LoadCamara(bool teleport)
         {
             // Extraigo los ejes del avion de su matriz transformación
             Vector3 carPosition = car.GetPosition();
@@ -179,14 +179,13 @@ namespace AlumnoEjemplos.LucasArtsTribute
             TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
 
             car.Move(d3dInput, elapsedTime);
-            // Adelante
+            
+            //Cambiar camara
             if (d3dInput.keyDown(Key.C))
             {
                 cam.ChangeCamara();
             }
 
-            // Hacer que la camara siga al personaje en su nueva posicion
-            GuiController.Instance.ThirdPersonCamera.Target = car.Mesh.Position;
 
             // Render piso
             piso.render();
@@ -199,7 +198,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             
             // Render del Auto
             car.Mesh.render();
-            LoadCamera(false);
+            LoadCamara(false);
         }
 
         /// <summary>
