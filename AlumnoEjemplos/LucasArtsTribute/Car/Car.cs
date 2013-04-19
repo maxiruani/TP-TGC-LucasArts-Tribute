@@ -201,5 +201,31 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
         }
 
+
+        public Vector3 GetPosition()
+        {
+            Matrix m = this.mesh.Transform;
+            return new Vector3(m.M41, m.M42, m.M43);
+        }
+
+
+        public Vector3 XAxis()
+        {
+            Matrix m = this.mesh.Transform;
+            return new Vector3(m.M11, m.M12, m.M13);
+        }
+
+        public Vector3 YAxis()
+        {
+            Matrix m = this.mesh.Transform;
+            return new Vector3(m.M21, m.M22, m.M23);
+        }
+
+        public Vector3 ZAxis()
+        {
+            Matrix m = this.mesh.Transform;
+            return new Vector3(m.M31, m.M32, m.M33);
+        }
+
     }
 }

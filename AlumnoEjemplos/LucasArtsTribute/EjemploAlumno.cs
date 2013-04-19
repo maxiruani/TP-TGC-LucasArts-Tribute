@@ -128,11 +128,17 @@ namespace AlumnoEjemplos.LucasArtsTribute
             GuiController.Instance.DirectSound.ListenerTracking = car.Mesh;
 
             //Configurar camara en Tercer Persona
+            /*
             GuiController.Instance.ThirdPersonCamera.Enable = true;
-
             GuiController.Instance.ThirdPersonCamera.setCamera(car.Position, 200, 300);
-
             GuiController.Instance.ThirdPersonCamera.TargetDisplacement = new Vector3(0, 100, 0);
+            */
+            // Crear la cámara
+            cam = new Camara();
+            cam.SetCenterTargetUp(CAM_DELTA, new Vector3(0, 0, 0), new Vector3(0, 1, 0), true);
+            cam.Enable = true;
+            GuiController.Instance.CurrentCamera = cam;
+            LoadCamera(true);
 
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
@@ -140,6 +146,23 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 s.play(true);
             }
 
+        }
+
+        private void LoadCamera(bool teleport)
+        {
+            // Extraigo los ejes del avion de su matriz transformación
+            Vector3 carPosition = car.GetPosition();
+            Vector3 z = car.ZAxis();
+            Vector3 y = car.YAxis();
+            Vector3 x = car.XAxis();
+
+            // Seteo la cámara en función de la posición del avion
+            Vector3 camera = carPosition + cam.ActualCamara.Y * y + cam.ActualCamara.Z * z;
+            Vector3 target = carPosition + cam.ActualCamara.Y * y;
+            
+            /*Vector3 camera = carPosition + CAM_DELTA.Y * y + CAM_DELTA.Z * z;
+            Vector3 target = carPosition + CAM_DELTA.Y * y;
+            */cam.SetCenterTargetUp(camera, target, new Vector3(0, 1, 0), teleport);
         }
 
         /// <summary>
@@ -156,6 +179,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
             TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
 
             car.Move(d3dInput, elapsedTime);
+            // Adelante
+            if (d3dInput.keyDown(Key.C))
+            {
+                cam.ChangeCamara();
+            }
 
             // Hacer que la camara siga al personaje en su nueva posicion
             GuiController.Instance.ThirdPersonCamera.Target = car.Mesh.Position;
@@ -171,6 +199,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             
             // Render del Auto
             car.Mesh.render();
+            LoadCamera(false);
         }
 
         /// <summary>
@@ -191,6 +220,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 sound.dispose();
             }
         }
+
+
+        public Camara cam;
+        Vector3 CAM_DELTA = new Vector3(0, 50, 250);
+
 
     }
 }
