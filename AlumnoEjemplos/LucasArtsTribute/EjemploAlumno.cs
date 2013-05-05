@@ -140,6 +140,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             GuiController.Instance.CurrentCamera = cam;
             LoadCamara(true);
 
+            
+
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
             {
@@ -199,6 +201,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             // Render del Auto
             car.Mesh.render();
             LoadCamara(false);
+            car.Instrumental.GetValues().ForEach(item => item.render());
         }
 
         /// <summary>

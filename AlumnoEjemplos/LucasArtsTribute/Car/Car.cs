@@ -112,6 +112,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             set { obstacles = value; }
         }
 
+        public Instrumental Instrumental { get; internal set; }
+        
         #endregion
 
         public Car(TgcMesh car_mesh)
@@ -119,6 +121,14 @@ namespace AlumnoEjemplos.LucasArtsTribute
             velocity = 0;
             acceleration = 0;
             mesh = car_mesh;
+            stats = new CarStats();
+            LoadInstrumental();
+
+        }
+
+        private void LoadInstrumental()
+        {
+            Instrumental = new Instrumental(stats);
         }
 
         public void NewMove(float time)
@@ -147,7 +157,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 isMovingBack = true;
                 isMoving = true;
                 moveForward = VELODICAD_CAMINAR;
-
             }
 
             // Derecha
@@ -227,5 +236,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             return new Vector3(m.M31, m.M32, m.M33);
         }
 
+        private CarStats stats;
     }
+
+
+
 }
