@@ -15,7 +15,7 @@ using TgcViewer.Utils.TgcSkeletalAnimation;
 using TgcViewer.Utils.Sound;
 
 using AlumnoEjemplos.LucasArtsTribute;
-
+using AlumnoEjemplos.LucasArtsTribute.Models;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -28,7 +28,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         TgcBox piso;
         List<TgcBox> obstaculos;
         List<Tgc3dSound> sonidos;
-        Car car;
+        CorvetteCar car;
 
         /// <summary>
         /// Categoría a la que pertenece el ejemplo.
@@ -118,10 +118,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //Cargar personaje principal
             TgcSceneLoader loader = new TgcSceneLoader();
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.ExamplesMediaDir + "MeshCreator\\Meshes\\Vehiculos\\Hummer\\Hummer-TgcScene.xml");
-            
-            car = new Car(scene.Meshes[0]);
-            car.Position = new Vector3(0, -50, 0);
-            car.Obstacles = obstaculos;
+
+            car = new CorvetteCar();
+            car.Mesh = scene.Meshes[0];
+            car.Mesh.Position = new Vector3(0, -50, 0);
             
 
             //Hacer que el Listener del sonido 3D siga al personaje
@@ -167,6 +167,26 @@ namespace AlumnoEjemplos.LucasArtsTribute
             */cam.SetCenterTargetUp(camera, target, new Vector3(0, 1, 0), teleport);
         }
 
+        public void ProcessInput(TgcD3dInput input)
+        {
+            // Acelerador
+            if (input.keyDown(Key.W))
+            {
+                this.car.throttle = 100;
+                this.car.brake = 0;
+            }
+            else if (input.keyDown(Key.S))
+            {
+                this.car.brake = 0;
+                this.car.throttle = 0;
+            }
+            else
+            {
+                this.car.throttle = 0;
+                this.car.brake = 0;
+            }
+        }
+
         /// <summary>
         /// Método que se llama cada vez que hay que refrescar la pantalla.
         /// Escribir aquí todo el código referido al renderizado.
@@ -178,28 +198,35 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //Device de DirectX para renderizar
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
 
-            TgcD3dInput d3dInput = GuiController.Instance.D3dInput;
+            TgcD3dInput input = GuiController.Instance.D3dInput;
 
-            car.Move(d3dInput, elapsedTime);
-            
+            ProcessInput(input);
+
+            //car.Move(d3dInput, elapsedTime);
+
             //Cambiar camara
-            if (d3dInput.keyDown(Key.C))
+            if (input.keyDown(Key.C))
             {
                 cam.ChangeCamara();
             }
 
+            float delta_t = elapsedTime * 10;
+
+            car.DoPhysics(delta_t);
+
 
             // Render piso
             piso.render();
-
+            /*
             // Render obstaculos
             foreach (TgcBox obstaculo in obstaculos)
             {
                 obstaculo.render();
             }
+            */
             
             // Render del Auto
-            car.Mesh.render();
+            car.Render();
             LoadCamara(false);
             car.Instrumental.GetValues().ForEach(item => item.render());
         }
