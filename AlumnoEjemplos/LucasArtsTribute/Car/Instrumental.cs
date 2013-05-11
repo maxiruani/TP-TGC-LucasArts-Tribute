@@ -58,7 +58,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _textToShow.Add(text);
                 text.Text = pair.Key + ": " + pair.Value;
                 text.Color = Color.Yellow;
-                text.changeFont(new Font("TimesNewRoman", 25, FontStyle.Bold | FontStyle.Italic));
+                text.changeFont(new Font("TimesNewRoman", 10, FontStyle.Bold | FontStyle.Italic));
                 text.Position = new Point(XDefault, YDefault);
                 text.Size = new Size(XDefault, YDefault);
                 text.Position = new Point(XDefault, YDefault + offsetYPosition);
@@ -73,8 +73,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private CarStats _stats;
         private List<TgcText2d> _textToShow; 
         private Dictionary<String, float> _valuesToShow;
-        const int XDefault = 500;
-        const int YDefault = 500;
+        const int XDefault = 200;
+        const int YDefault = 200;
 
     }
 }

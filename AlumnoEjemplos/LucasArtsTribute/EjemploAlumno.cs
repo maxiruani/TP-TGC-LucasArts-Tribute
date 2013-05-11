@@ -172,7 +172,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             // Acelerador
             if (input.keyDown(Key.W))
             {
-                this.car.throttle = 100;
+                this.car.throttle = 1;
                 this.car.brake = 0;
             }
             else if (input.keyDown(Key.S))
@@ -213,7 +213,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             float delta_t = elapsedTime * 10;
 
             car.DoPhysics(delta_t);
-
 
             // Render piso
             piso.render();

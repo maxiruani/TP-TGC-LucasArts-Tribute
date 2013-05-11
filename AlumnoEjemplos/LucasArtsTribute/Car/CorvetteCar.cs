@@ -6,6 +6,7 @@ using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
+using System.IO;
 
 namespace AlumnoEjemplos.LucasArtsTribute.Models
 {
@@ -24,6 +25,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private Vector Frr;                     // Rolling Resistance force vector
         private Vector Fbraking;                // Braking force vector
         private Vector Flong;                   // Long force vector
+
+        // ------ Nuevo -------
+        private float wheel_angular_velocity;
 
         private float angular_velocity;         // Angular Velocity aka Wheel Rotation Rate
         private float angular_acceleration;     // Angular Acceleration
@@ -54,7 +58,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private float wheel_radius = 0.33f;     // Wheel radius
         private int[,] torque_curve;            // Torque Curve
         private float[] gears_ratio;            // Gears Ratio
-        private float[] gears_wheel_rpm_shift;  // Wheel RPM transmission shift
+        
+        // private float[] gears_wheel_rpm_shift;  // Wheel RPM transmission shift
+        // ------ Nuevo ------
+        private float[] gears_rpm_shift;
+
         private float[] max_speed_per_gear;     // Max Speed per gear
         private float rpm_red_line;             // Max RPM engine red line
 
@@ -71,6 +79,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private float Cdrag;                    // Drag coefficient
         private float Crr;                      // Rolling Resistance coefficient
 
+        // ---- Logger ----
+        StreamWriter sw;
+
         public CorvetteCar()
         {
             // Calculate the Drag coefficient of the car
@@ -80,7 +91,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             Crr = Cdrag * 30;
 
             // Calculate the Rear Wheels inertia
-            inertia = 75 * wheel_radius * wheel_radius;
+            inertia = 1500; // 75 * wheel_radius * wheel_radius;
 
             // Initialize RunTime variables
 
@@ -90,8 +101,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             position = new Vector(0, 0, 0);
 
             // - World Coordinates Vectors
-            // velocity_wc = new Vector(0, 0, 0);
-            // acceleration_wc = new Vector(0, 0, 0);
+            velocity_wc = new Vector(0, 0, 0);
+            acceleration_wc = new Vector(0, 0, 0);
             position_wc = new Vector(0, 0, 0);
 
             // - Forces
@@ -105,6 +116,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             angular_velocity = 0;
             angular_acceleration = 0;
 
+            // - Nuevo
+            wheel_angular_velocity = 0;
+
             // - User variables
             throttle = 0;
             brake = 0;
@@ -115,7 +129,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             gears_ratio = new float[7];
 
             //gears_ratio[0] = 2.90f;   // Reverse
-            //gears_ratio[0] = 0;         // Neutral
+            //gears_ratio[0] = 0;       // Neutral
             gears_ratio[1] = 2.66f;     // First gear
             gears_ratio[2] = 1.78f;     // Second gear
             gears_ratio[3] = 1.30f;     // Third gear
@@ -124,21 +138,39 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             gears_ratio[6] = 0.5f;      // Sixth gear
 
             // Define the Wheel RPM when the transmission would shift
+            /*
             gears_wheel_rpm_shift = new float[7];
-
+             
             gears_wheel_rpm_shift[1] = 510;     // First gear
             gears_wheel_rpm_shift[2] = 760;     // Second gear
             gears_wheel_rpm_shift[3] = 1100;    // Third gear
             gears_wheel_rpm_shift[4] = 1850;    // Fourth gear
             gears_wheel_rpm_shift[5] = 2800;    // Fifth gear
             gears_wheel_rpm_shift[6] = 3450;    // Six gear top
+            */
+            gears_rpm_shift = new float[7];
+
+            gears_rpm_shift[1] = 4548;    // First gear
+            gears_rpm_shift[2] = 4870;    // Second gear
+            gears_rpm_shift[3] = 4890;    // Third gear
+            gears_rpm_shift[4] = 5130;    // Fourth gear
+            gears_rpm_shift[5] = 4555;    // Fifth gear
+            gears_rpm_shift[6] = 5985;    // Six gear top
 
             // Define the Max Speed per Gear when the transmission would shift
             max_speed_per_gear = new float[7];
 
             for (int i = 1; i < 7; i++)
-                max_speed_per_gear[i] = gears_wheel_rpm_shift[i] * wheel_radius;           
-
+                max_speed_per_gear[i] = wheel_radius * 2 * FastMath.PI * gears_rpm_shift[i] / (60 * gears_ratio[i] * Xd);
+                //max_speed_per_gear[i] = gears_wheel_rpm_shift[i] * wheel_radius;           
+            /*
+            max_speed_per_gear[1] = 20;
+            max_speed_per_gear[2] = 42;
+            max_speed_per_gear[3] = 80;
+            max_speed_per_gear[4] = 120;
+            max_speed_per_gear[5] = 165;
+            max_speed_per_gear[6] = 190;
+            */
             // Initialize the Torque Curve
             torque_curve = new int[6, 2];
 
@@ -164,6 +196,10 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             velocity_wc = new Vector(0, 0, 0);
 
             LoadInstrumental();
+
+            //Pass the filepath and filename to the StreamWriter Constructor
+            sw = new StreamWriter("C:\\TGC-Logs\\log_corvette.txt");
+            sw.WriteLine("Instance Car");
         }
 
         public Instrumental Instrumental { get; internal set; }
@@ -205,7 +241,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             acceleration = Flong / this.mass;
 
             // Calculate the Angular Acceleration
-            angular_acceleration = (torque_drive + (Ftraction.Length() * wheel_radius)) / inertia;
+            // angular_acceleration = (torque_drive + (Ftraction.Length() * wheel_radius)) / inertia;
 
             // Transform Acceleration to World Coordinates
             acceleration_wc = acceleration.FromAngleToY(angle);
@@ -217,28 +253,42 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             position_wc = position_wc + delta_t * velocity_wc;
 
             // Calculate the Angular Velocity
-            angular_velocity = angular_velocity + delta_t * this.angular_acceleration;
+            // angular_velocity = angular_velocity + delta_t * this.angular_acceleration;
 
             // Update the angle
-            angle = angle + delta_t * angular_velocity;
+            // angle = angle + delta_t * angular_velocity;
 
             stats.Acceleration = acceleration_wc.Length();
-            stats.Velocity = velocity_wc.Length();
+            stats.Velocity = velocity_wc.Length() * 3.6f;
             stats.Gear = gear;
+
+            sw.WriteLine("-------------------------------");
+            sw.WriteLine("Angle: " + this.angle.ToString());
+            sw.WriteLine("RPM: " + this.rpm_engine.ToString() + " Lookup Torque: " + LookupTorqueCurve(rpm_engine).ToString());
+            sw.WriteLine("Gear: " + this.gear.ToString());
+            sw.WriteLine("Ftraction: " + this.Ftraction.Length().ToString());
+            sw.WriteLine("Fdrag: " + this.Fdrag.Length().ToString() + " Frr: " + this.Frr.Length().ToString());
+            sw.WriteLine("Flong: " + this.Flong.ToString());
+            sw.WriteLine("WC Acceleration: " + this.acceleration_wc.Length().ToString());
+            sw.WriteLine("WC Velocity: " + this.velocity_wc.Length().ToString());
+            
         }
+
+        float tmp = 0;
 
         public void UpdateValues()
         {
             // 1- Update the Engine RPMs
-            rpm_engine = GetActualEngineRPM();
+            //rpm_engine = GetActualEngineRPM();
+            rpm_engine = GetEngineTurnOverRate();
 
             // 2- Update the Wheels RPMs that depends on Engine RPMs
-            rpm_wheel = GetActualWheelRPM();
+            //rpm_wheel = GetActualWheelRPM();
 
             // 3- Update the Engine Torque that depends on the Engine RPMs
             torque_engine = GetEngineTorque();
 
-            // 1- Update the Drive Torque that depends on the Engine Torque
+            // 4- Update the Drive Torque that depends on the Engine Torque
             torque_drive = GetDriveTorque();
         }
 
@@ -263,27 +313,30 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         // Engine Force
         public Vector GetTractionForce()
         {
-            return - new Vector(torque_drive / wheel_radius, 0, 0);
+            // return new Vector(throttle * torque_drive / wheel_radius, 0, 0);
+            return - new Vector((throttle * torque_drive) / wheel_radius, 0, 0);
         }
 
         public float GetDriveTorque()
         {
             //engine_torque = GetEngineTorque();
-            return torque_engine * gear * Xd * n;
+            return torque_engine * gears_ratio[gear] * Xd *n;
         }
 
         public float GetEngineTorque()
         {
             //rpm = GetActualEngineRPM();
-            return throttle * LookupTorqueCurve(rpm_engine);
+            //return throttle * LookupTorqueCurve(rpm_engine);
+            return LookupTorqueCurve(rpm_engine);
         }
-
+        
+        
         public float LookupTorqueCurve(float rpm)
         {
             int len = torque_curve.Length/2;
             for (int i = 0; i < len; i++)
             {
-                if (rpm < torque_curve[i, 0])
+                if (rpm <= torque_curve[i, 0])
                 {
                     // Si es el primer punto de la curva, devuelvo la base de RPMs
                     if (i == 0)
@@ -300,11 +353,36 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
 
             return 0;
         }
+        
+        /*
+        public float LookupTorqueCurve(float rpm)
+        {
+            int len = torque_curve.Length / 2;
+            for (int i = 0; i < len; i++)
+            {
+                if (rpm <= torque_curve[i, 0])
+                {
+                    // Si es el primer punto de la curva, devuelvo la base de RPMs
+                    if (i == 0)
+                        return torque_curve[0, 1];
 
+                    // Si no, promedio entre los dos puntos
+                    return torque_curve[i, 1];
+                }
+
+                // Si es el ultimo, devuelvo el tope de corte
+                if (i == (len - 1))
+                    return torque_curve[len - 1, 1];
+            }
+
+            return 0;
+        }
+        */
+        /* ------------ Viejo -------------
         public float GetActualEngineRPM()
         {
-            float temp = angular_velocity * gear * Xd * 60 / 2 * FastMath.PI;
-
+            float temp = angular_velocity * gears_ratio[gear] * Xd * 60 / 2 * FastMath.PI;
+            
             if (temp > rpm_red_line)
                 return rpm_red_line;
 
@@ -318,13 +396,41 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         {
             //return GetActualEngineRPM() / (gear * Xd);
             //return rpm_engine / (gear * Xd);
-            return velocity.X * 60 * gear * Xd / FastMath.PI * wheel_radius;
+            return velocity.X * 60 * gears_ratio[gear] * Xd / FastMath.PI * wheel_radius;
         }
-
+        
         public float GetAngularVelocity()
         {
             return (velocity.Length() * 1000 / 3600) / wheel_radius;
         }
+        */
+
+        // ------------- Nuevo ----------------
+        // Engine RPM
+        public float GetEngineTurnOverRate()
+        {
+            float temp = FastMath.Abs((velocity.X * 60 * gears_ratio[gear] * Xd) / (2 * FastMath.PI * wheel_radius));
+            tmp = temp;
+            
+            //float a_velocity = (velocity.Length() * 1000) / 3600;
+            //float temp = a_velocity * 60 * gears_ratio[gear] * Xd / 2 * FastMath.PI;
+
+            if (temp > rpm_red_line)
+                return rpm_red_line;
+
+            if (temp < 1000)
+                return 1000;
+
+            return temp;
+        }
+
+        // Velocidad angular de la Rueda
+        public float GetWheelAngularVelocity()
+        {
+            return 2 * FastMath.PI * GetEngineTurnOverRate() / 60 * gears_ratio[gear] * Xd;
+        }
+
+        // ------------------------------------
 
         public void AutomaticTransmission()
         {
