@@ -139,7 +139,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public void ProcessInput(TgcD3dInput input)
         {
-            // Acelerador
+            // Acceleration / Braking
             if (input.keyDown(Key.W))
             {
                 this.car.throttle = 1;
@@ -147,13 +147,27 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
             else if (input.keyDown(Key.S))
             {
-                this.car.brake = 0;
+                this.car.brake = 1;
                 this.car.throttle = 0;
             }
             else
             {
                 this.car.throttle = 0;
                 this.car.brake = 0;
+            }
+
+            // Cornering
+            if (input.keyDown(Key.A))
+            {
+                this.car.steering_angle = -0.020f;
+            }
+            else if (input.keyDown(Key.D))
+            {
+                this.car.steering_angle = 0.020f;
+            }
+            else
+            {
+                this.car.steering_angle = 0;
             }
         }
 
@@ -181,7 +195,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 cam.ChangeCamara();
             }
 
-            float delta_t = elapsedTime * 10;
+            float delta_t = elapsedTime * 20;
 
             car.DoPhysics(delta_t);
 
