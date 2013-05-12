@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
+using TgcViewer;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 using System.IO;
@@ -46,6 +47,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private Vector velocity_wc;
         private Vector acceleration_wc;
         private Vector position_wc;
+        public Vector Position_wc
+        {
+            set { position_wc = value; }
+            get { return position_wc; }
+        }
 
         // ---- Car Seteable Variables ----
         private float mass = 1500;              // Mass of the car (including driver)
@@ -103,7 +109,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             // - World Coordinates Vectors
             velocity_wc = new Vector(0, 0, 0);
             acceleration_wc = new Vector(0, 0, 0);
-            position_wc = new Vector(0, 0, 0);
+            Position_wc = new Vector(0, 0, 0);
 
             // - Forces
             Ftraction = new Vector(0, 0, 0);
@@ -250,7 +256,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             velocity_wc = velocity_wc + delta_t * acceleration_wc;
 
             // Calculate the Position in World Coordinates
-            position_wc = position_wc + delta_t * velocity_wc;
+            Position_wc = Position_wc + delta_t * velocity_wc;
 
             // Calculate the Angular Velocity
             // angular_velocity = angular_velocity + delta_t * this.angular_acceleration;
@@ -258,9 +264,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             // Update the angle
             // angle = angle + delta_t * angular_velocity;
 
-            stats.Acceleration = acceleration_wc.Length();
-            stats.Velocity = velocity_wc.Length() * 3.6f;
-            stats.Gear = gear;
+         //   stats.Acceleration = acceleration_wc.Length();
+         //   stats.Velocity = velocity_wc.Length() * 3.6f;
+         //   stats.Gear = gear;
+            stats.Zmax = this.Mesh.BoundingBox.PMax.Z;
+            stats.Zmin = this.Mesh.BoundingBox.PMin.Z;
 
             sw.WriteLine("-------------------------------");
             sw.WriteLine("Angle: " + this.angle.ToString());
@@ -474,10 +482,15 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             return new Vector3(m.M31, m.M32, m.M33);
         }
 
+        public void CrashWithObject()
+        {
+            velocity_wc = new Vector(0,0,0);
+        }
+
         public void Render()
         {
             // Set the new position
-            mesh.Position = this.position_wc.ToDirectXVector();
+            mesh.Position = this.Position_wc.ToDirectXVector();
 
             // Set the rotation
             //mesh.Rotation = new Vector3(0, FastMath.PI + this.angle, 0);
@@ -486,5 +499,16 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             mesh.render();
         }
 
+        public void RenderEffect()
+        {
+            Effect effect = mesh.Effect;
+            effect.SetValue("fvLightPosition", TgcParserUtils.vector3ToFloat3Array(new Vector3(0, 500, 0)));
+            effect.SetValue("fvEyePosition",
+                            TgcParserUtils.vector3ToFloat3Array(GuiController.Instance.ThirdPersonCamera.getPosition()));
+            effect.SetValue("k_la", (float) GuiController.Instance.Modifiers["Ambient"]);
+            effect.SetValue("k_ld", (float) GuiController.Instance.Modifiers["Diffuse"]);
+            effect.SetValue("k_ls", (float) GuiController.Instance.Modifiers["Specular"]);
+            effect.SetValue("fSpecularPower", (float) GuiController.Instance.Modifiers["SpecularPower"]);
+        }
     }
 }

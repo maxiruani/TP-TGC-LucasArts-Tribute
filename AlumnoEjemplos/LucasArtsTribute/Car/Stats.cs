@@ -9,6 +9,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     public class CarStats
     {
+        public float Zmin { get; set; }
+        public float Zmax { get; set; }
+
         public float Velocity { get; set; }
         public float Acceleration { get; set; }
         public float Gear { get; set; }

@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
+using AlumnoEjemplos.LucasArtsTribute.Circuit;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer;
 using TgcViewer.Example;
 using TgcViewer.Utils.Modifiers;
+using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcSceneLoader;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.Input;
@@ -27,6 +29,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         TgcBox piso;
         List<TgcBox> obstaculos;
+        private List<Obstacle> _obstacles;
         List<Tgc3dSound> sonidos;
         CorvetteCar car;
 
@@ -64,56 +67,18 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             //GuiController.Instance: acceso principal a todas las herramientas del Framework
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
-
             //Crear piso
             TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice, GuiController.Instance.ExamplesMediaDir + "Texturas\\tierra.jpg");
             piso = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
 
             //Cargar obstaculos y posicionarlos. Los obstáculos se crean con TgcBox en lugar de cargar un modelo.
-            obstaculos = new List<TgcBox>();
+            _obstacles = new List<Obstacle>();
             sonidos = new List<Tgc3dSound>();
-            TgcBox obstaculo;
             Tgc3dSound sound;
 
+            Obstacle wheelBox = new Wheel(d3dDevice, new Vector3(-50, 0, -920), new Vector3(50, 50, 50));
             //Obstaculo 1
-            obstaculo = TgcBox.fromSize(
-                new Vector3(-200, 0, 0),
-                new Vector3(80, 150, 80),
-                TgcTexture.createTexture(d3dDevice, GuiController.Instance.ExamplesMediaDir + "Texturas\\Quake\\TexturePack3\\goo2.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Sondio obstaculo 1
-            //OJO, solo funcionan sonidos WAV Mono (No stereo). Hacer boton der => Propiedades sobre el archivo
-            //y tiene que decir "1 Channel".
-            sound = new Tgc3dSound(GuiController.Instance.ExamplesMediaDir + "Sound\\armonía, continuo.wav", obstaculo.Position);
-            //Hay que configurar la mínima distancia a partir de la cual se empieza a atenuar el sonido 3D
-            sound.MinDistance = 50f;
-            sonidos.Add(sound);
-
-            //Obstaculo 2
-            obstaculo = TgcBox.fromSize(
-                new Vector3(200, 0, 800),
-                new Vector3(80, 300, 80),
-                TgcTexture.createTexture(d3dDevice, GuiController.Instance.ExamplesMediaDir + "Texturas\\Quake\\TexturePack3\\lun_dirt.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Sondio obstaculo 2
-            sound = new Tgc3dSound(GuiController.Instance.ExamplesMediaDir + "Sound\\viento helado.wav", obstaculo.Position);
-            sound.MinDistance = 50f;
-            sonidos.Add(sound);
-
-            //Obstaculo 3
-            obstaculo = TgcBox.fromSize(
-                new Vector3(600, 0, 400),
-                new Vector3(80, 100, 150),
-                TgcTexture.createTexture(d3dDevice, GuiController.Instance.ExamplesMediaDir + "Texturas\\Quake\\TexturePack3\\Metal2_1.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Sondio obstaculo 3
-            sound = new Tgc3dSound(GuiController.Instance.ExamplesMediaDir + "Sound\\risa de maníaco.wav", obstaculo.Position);
-            sound.MinDistance = 50f;
-            sonidos.Add(sound);
-
+            _obstacles.Add(wheelBox);
 
             //Cargar personaje principal
             TgcSceneLoader loader = new TgcSceneLoader();
@@ -122,6 +87,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
             car = new CorvetteCar();
             car.Mesh = scene.Meshes[0];
             car.Mesh.Position = new Vector3(0, -50, 0);
+            new CarReflection().EffectEnable(car);
+            
+            
+            //Crear caja para indicar ubicacion de la luz
+            lightBox = TgcBox.fromSize(new Vector3(5, 5, 5), Color.Yellow);
             
 
             //Hacer que el Listener del sonido 3D siga al personaje
@@ -197,6 +167,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             //Device de DirectX para renderizar
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
+            Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
 
             TgcD3dInput input = GuiController.Instance.D3dInput;
 
@@ -216,18 +187,38 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             // Render piso
             piso.render();
-            /*
-            // Render obstaculos
-            foreach (TgcBox obstaculo in obstaculos)
-            {
-                obstaculo.render();
-            }
-            */
             
+            // Render obstaculos
+            Vector3 lastPos = car.Mesh.Position;
+            Vector lastPos2 = car.Position_wc;
+            bool collitionTrue;
+            foreach (Obstacle obstacle in _obstacles)
+            {
+                obstacle.Render();
+                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(obstacle.ObstacleBox.BoundingBox, car.Mesh.BoundingBox);
+                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
+                {
+                    Vector3 collisionZone = TgcCollisionUtils.closestPointAABB(car.Mesh.Position, obstacle.ObstacleBox.BoundingBox);
+                    car.Mesh.Position = lastPos;
+                    car.Position_wc = lastPos2;
+                    car.CrashWithObject();
+                    break;
+                }
+            }
+
+            //Mover mesh que representa la luz
+            lightBox.Position = lightPosition;
             // Render del Auto
             car.Render();
             LoadCamara(false);
             car.Instrumental.GetValues().ForEach(item => item.render());
+        }
+
+        private TgcBox lightBox;
+
+        private void CheckCollisionPos()
+        {
+            
         }
 
         /// <summary>
@@ -237,9 +228,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
         public override void close()
         {
             piso.dispose();
-            foreach (TgcBox obstaculo in obstaculos)
+            foreach (Obstacle obstacle in _obstacles)
             {
-                obstaculo.dispose();
+                obstacle.Dispose();
             }
             car.Mesh.dispose();
 
