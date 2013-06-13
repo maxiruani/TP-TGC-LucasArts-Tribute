@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using AlumnoEjemplos.LucasArtsTribute.Models;
+using AlumnoEjemplos.LucasArtsTribute.Car;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using TgcViewer;

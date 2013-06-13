@@ -158,6 +158,7 @@ namespace TgcViewer
             tgcD3dDevice.doClear();
 
             //Acutalizar input
+
             tgcD3dInput.update();
 
             //Actualizar camaras (solo una va a estar activada a la vez)

@@ -88,14 +88,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LucasArtsTribute\Camara.cs" />
-    <Compile Include="LucasArtsTribute\Car\Car.cs" />
+    <Compile Include="LucasArtsTribute\Car\BasicCar.cs" />
+    <Compile Include="LucasArtsTribute\Car\Model.cs" />
+    <Compile Include="LucasArtsTribute\Car\FirstCar.cs" />
     <Compile Include="LucasArtsTribute\Car\CarReflection.cs" />
     <Compile Include="LucasArtsTribute\Car\CorvetteCar.cs" />
     <Compile Include="LucasArtsTribute\Car\Stats.cs" />
     <Compile Include="LucasArtsTribute\Car\Vector.cs" />
     <Compile Include="LucasArtsTribute\Circuit\Obstacle.cs" />
+    <Compile Include="LucasArtsTribute\Components\LatMesh.cs" />
     <Compile Include="LucasArtsTribute\EjemploAlumno.cs" />
     <Compile Include="LucasArtsTribute\Car\Instrumental.cs" />
+    <Compile Include="LucasArtsTribute\Utils\ConfigurationManager.cs" />
+    <Compile Include="LucasArtsTribute\Vehicle\Vehicle.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +126,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

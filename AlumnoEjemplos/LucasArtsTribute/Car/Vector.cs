@@ -1,7 +1,7 @@
 ﻿using Microsoft.DirectX;
 using TgcViewer.Utils.TgcGeometry;
 
-namespace AlumnoEjemplos.LucasArtsTribute.Models
+namespace AlumnoEjemplos.LucasArtsTribute.Car
 {
     public class Vector
     {

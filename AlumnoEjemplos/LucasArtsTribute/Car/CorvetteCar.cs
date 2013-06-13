@@ -9,7 +9,7 @@ using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 using System.IO;
 
-namespace AlumnoEjemplos.LucasArtsTribute.Models
+namespace AlumnoEjemplos.LucasArtsTribute.Car
 {
     public class CorvetteCar
     {
@@ -27,6 +27,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
 
         // Forces
         private Vector Ftraction;               // Tracion force vector
+        private Vector Fdrive;                  // Drive force vector
         private Vector Fdrag;                   // Drag force vector
         private Vector Frr;                     // Rolling Resistance force vector
         private Vector Fbraking;                // Braking force vector
@@ -47,14 +48,26 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         }
 
         // ------ Magnitudes -------
+        private float rear_wheel_angular_velocity;
+        private float rear_wheel_angular_acceleration;
+        
         private float wheel_angular_velocity;   // Wheel angular velocity
-        private float angular_velocity;         // Car angular velocity
-        private float angular_acceleration;     // Car angular acceleration
+
+        private float car_angular_velocity;     // Car angular velocity
+        private float car_angular_acceleration; // Car angular acceleration
         private float rpm_engine;               // RPM of engine
+
         private float rpm_wheel;                // RPM of wheels
+
         private float torque_engine;            // Engine torque
-        private float torque_wheel;             // Drive torque
+        private float torque_drive;             // Drive torque
         private float torque_car;               // Torque which causes the car body to turn
+
+        private float torque_traction;
+        private float torque_brake;
+        private float torque_rear_axle;
+
+        private float slip_ratio;
 
         // ---- Cornering
         private float side_slip_angle;          // Car side slip angle
@@ -65,7 +78,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         public float throttle;                  // Throttle position
         public float brake;                     // Brake position
         public int gear;                        // Actual gear
-        public float steering_angle;            // Steering angle of rear wheels
+        public float steerangle;                // Steering angle of rear wheels
         public float yaw_angle;                 // Yaw angle
 
         // ---- Car Seteable Variables Config ----
@@ -80,14 +93,16 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private float[] gears_ratio;            // Gears Ratio
         private float[] gears_rpm_shift;        // RPM where the gear would shift
         private float[] max_speed_per_gear;     // Max Speed per gear
-        private float rpm_red_line = 7200;      // Max RPM engine red line
+        private float rpm_red_line = 6000;      // Max RPM engine red line
 
         private float Ca_front = -5.2f;         // Cornering stiffness constant for front wheels
         private float Ca_rear = -5;             // Cornering stiffness constant for rear wheels
-        private float b = 1.265633f;            // Distance from CG to the front axle
-        private float c = 1.519292f;            // Distance from CG to the rear axle
+        private float b = 1; //1.265633f;            // Distance from CG to the front axle
+        private float c = 1; //1.519292f;            // Distance from CG to the rear axle
         private float max_friction = 3;         // Maximun normalized friction force
         private float inertia = 1500;           // Car inertia
+
+        private float Ct = 45;                  // Traction constant
 
         // ----- Car Mesh
         private TgcMesh mesh;
@@ -102,6 +117,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         private float Cdrag = 0.4257f;          // Drag coefficient
         private float Crr = 12.8f;              // Rolling Resistance coefficient
         private float weight;                   // Weight of car
+
+        private float rear_wheel_inertia = 4.1f;
 
         // ---- Logger ----
         StreamWriter sw;
@@ -138,9 +155,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             Flat_front = new Vector(0, 0, 0);
             Flat_rear = new Vector(0, 0, 0);
 
+            
+
             // - Magnitudes
-            angular_velocity = 0;
-            angular_acceleration = 0;
+            car_angular_velocity = 0;
+            car_angular_acceleration = 0;
             wheel_angular_velocity = 0;
 
             side_slip_angle = 0;
@@ -241,7 +260,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             LoadInstrumental();
 
             //Pass the filepath and filename to the StreamWriter Constructor
-            sw = new StreamWriter("C:\\TGC-Logs\\log_corvette.txt");
+            sw = new StreamWriter("D:\\TGC-Logs\\log_corvette.txt");
             sw.WriteLine("Instance Car");
         }
 
@@ -254,12 +273,33 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             Instrumental = new Instrumental(stats);
         }
 
-        public void DoPhysics(float delta_t)
+        /*
+        public Vector FromWCToCar(float yaw_angle)
         {
-            // Transform velocity in world coordinates to model coordinates reference
-            velocity = velocity_wc.FromAngleToY(yaw_angle);
+            
+            s = Sin(yaw_angle)
+            c = Cos(yaw_angle)
+            local_lateral_velocity = (world_x_velocity * c) + (world_z_velocity * s)
+            local_longitude_velocity = (world_x_velocity * -s) + (world_z_velocity * c)
+            
 
-            float yaw_speed = 0.5f * 2.785f * angular_velocity;
+            float s = FastMath.Sin(yaw_angle);
+            float c = FastMath.Cos(yaw_angle);
+
+            Vector3 wc = new Vector3(0, 0, 0);
+            wc.X = 
+            wc.Z = 
+        }
+        */
+
+        public void DoPhysics2(float delta_t)
+        {
+            // World Coordinates to Car Model Coordinates
+            float sn = FastMath.Sin(yaw_angle);
+            float cs = FastMath.Cos(yaw_angle);
+
+            velocity.Z = (velocity_wc.X * cs) + (velocity_wc.Z * sn);   // Long
+            velocity.X = (velocity_wc.X * -sn) + (velocity_wc.Z * cs);  // Lat
 
             if (FastMath.Abs(velocity.Length()) < 1)
             {
@@ -268,14 +308,70 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
                 velocity.Z = 0;
             }
 
-            // Compute the slip angles for the front and rear wheels and the car slip angle
-            side_slip_angle = GetCarSideSlipAngle();
-            wheel_front_slip_angle = /*side_slip_angle + */GetFrontWheelSlipAngle();
-            wheel_rear_slip_angle = /*side_slip_angle -*/ GetRearWheelSlipAngle();
+            // Slip Ratio
+            if (velocity.Length() > 0)
+            {
+                if (brake > 0)
+                    slip_ratio = ((wheel_angular_velocity * wheel_radius) - velocity.X) / FastMath.Abs(velocity.X);
+                else
+                    slip_ratio = -1;
+            }
+            else
+                slip_ratio = 0;
+
+
+
+            
+        }
+
+        float alfa_front = 0;
+        float alfa_rear = 0;
+
+        public void DoPhysics(float delta_t)
+        {
+            // Transform velocity in world coordinates to model coordinates reference
+            velocity = velocity_wc.FromAngleToY(yaw_angle);
+
+            if (FastMath.Abs(velocity.Length()) < 1)
+            {
+                side_slip_angle = 0;
+                wheel_front_slip_angle = 0;
+                wheel_rear_slip_angle = 0;
+            }
+            else
+            {
+                /*
+                alfa_front = FastMath.Atan2((velocity.Z + (car_angular_velocity * b)), FastMath.Abs(velocity.X)) - steering_angle;
+
+                alfa_rear =  FastMath.Atan2((velocity.Z + (car_angular_velocity * b)), FastMath.Abs(velocity.X));
+
+                side_slip_angle = FastMath.Atan2(velocity.Z, FastMath.Abs(velocity.X));
+
+                wheel_front_slip_angle =  side_slip_angle + alfa_front;
+                
+                wheel_rear_slip_angle =  side_slip_angle + alfa_rear;
+                */
+
+                // Slip Ratio
+                slip_ratio = GetSlipRatio();
+
+                // Compute the slip angles for the front and rear wheels and the car slip angle
+                side_slip_angle = GetCarSideSlipAngle();
+
+                wheel_front_slip_angle = -side_slip_angle + GetFrontWheelSlipAngle();
+
+                wheel_rear_slip_angle = -side_slip_angle + GetRearWheelSlipAngle();
+            }
+
+            // Traction force against the rear wheels
+            Ftraction = GetTractionForce();
+
+            // Torque Traction
+            torque_traction = GetTractionTorque();
 
             // Compute the lateral forces for front and rear wheels
-            Flat_front.Z = GetFrontLateralForce();
-            Flat_rear.Z = GetRearLateralForce();
+            Flat_front = GetFrontLateralForce();
+            Flat_rear = GetRearLateralForce();
 
             // Compute the engine turn over rate (Engine RPM)
             rpm_engine = GetEngineTurnOverRate();
@@ -287,19 +383,14 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             torque_engine = GetEngineTorque();
 
             // Compute the drive torque that depends on the Engine Torque
-            torque_wheel = GetWheelTorque();
+            torque_drive = GetDriveTorque();
 
-            // Calculate the Traction Force
-            Ftraction = GetTractionForce();
+            // Calculate the Drive force
+            Fdrive = GetDriveForce();
 
             // If the car is braking
             if (brake > 0)
             {
-                //if (gear > 0)
-                Ftraction = GetBrakingForce();
-
-                //if (gear == -1)
-                //    Fbraking = -GetBrakingForce();
             }
 
             // If the car is reversing
@@ -315,19 +406,24 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             Fdrag = GetDragForce();
 
             // Calculate the Long Force of the car
-            Flong = Ftraction /*+ Fbraking*/ + Frr + Fdrag + Flat_front + Flat_rear;
-
-            //Flong.X = Ftraction.X + Flat_front * FastMath.Sin(steering_angle) * (Fdrag.X + Frr.X);
-            //Flong.Z =   Flat_rear + Flat_front * FastMath.Cos(steering_angle) * (Fdrag.Z + Frr.Z);
+            Flong.X = Fdrive.X +    Flat_front.X * FastMath.Sin(steerangle) + (Fdrag.X + Frr.X);
+            Flong.Z = Flat_rear.Z + Flat_front.Z * FastMath.Cos(steerangle) + (Fdrag.Z + Frr.Z);
 
             // Calculate the torque on the car body
-            torque_car = FastMath.Cos(steering_angle) * Flat_front.Z * b - Flat_rear.Z * c;
+            torque_car = FastMath.Cos(steerangle) * Flat_front.Z * b - Flat_rear.Z * c;
+
+            // Calculate the rear axle torque
+            torque_rear_axle = torque_drive + torque_traction + torque_brake;
+
+            rear_wheel_angular_acceleration = torque_rear_axle / rear_wheel_inertia;
+
+            rear_wheel_angular_velocity = rear_wheel_angular_velocity + rear_wheel_angular_acceleration * delta_t;
 
             // Calculate acceleration of the model
             acceleration = Flong / this.mass;
 
             // Calculate the angular acceleration of the car
-            angular_acceleration = torque_car / inertia;
+            car_angular_acceleration = torque_car / inertia;
 
             // Transform acceleration to world coordinates
             acceleration_wc = acceleration.FromAngleToY(yaw_angle);
@@ -341,14 +437,10 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             // Move camera ?
 
             // Calculate the car angular velocity
-            angular_velocity = angular_velocity + delta_t * angular_acceleration;
+            car_angular_velocity = car_angular_velocity + delta_t * car_angular_acceleration;
 
             // Update the angle from the car angular velocity
-            yaw_angle = yaw_angle + delta_t * angular_velocity;
-
-            // Calculate the wheel rotation rate (Wheels RPM)
-            rpm_wheel = velocity.Length() / wheel_radius;
-
+            yaw_angle = yaw_angle + delta_t * car_angular_velocity;
 
             // ------- Logger --------
             stats.Acceleration = acceleration_wc.Length();
@@ -356,14 +448,16 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             stats.Gear = gear;
 
             sw.WriteLine("-------------------------------");
-            sw.WriteLine("Angle: " + this.yaw_angle.ToString() + " SideSlip: " + side_slip_angle.ToString());
-            sw.WriteLine("RPM: " + this.rpm_engine.ToString() + " Lookup Torque: " + LookupTorqueCurve(rpm_engine).ToString());
-            sw.WriteLine("Gear: " + this.gear.ToString());
-            sw.WriteLine("Ftraction: " + this.Ftraction.Length().ToString() + " Throttle: " + throttle.ToString() + " Brake: " + brake.ToString());
-            sw.WriteLine("Fdrag: " + this.Fdrag.Length().ToString() + " Frr: " + this.Frr.Length().ToString());
-            sw.WriteLine("Flong: " + this.Flong.ToString());
-            sw.WriteLine("WC Acceleration: " + this.acceleration_wc.Length().ToString());
-            sw.WriteLine("WC Velocity: " + this.velocity_wc.Length().ToString());
+            sw.WriteLine("Angle: " + this.yaw_angle + " SideSlip: " + side_slip_angle);
+            sw.WriteLine("RPM: " + this.rpm_engine + " Lookup Torque: " + LookupTorqueCurve(rpm_engine));
+            sw.WriteLine("Gear: " + this.gear);
+            sw.WriteLine("SlipRatio: " + this.slip_ratio + " Torque Traction: " + this.torque_traction + "Torque Drive: " + this.torque_drive);
+            sw.WriteLine("Ftraction: " + this.Ftraction.Length() + " Throttle: " + throttle + " Brake: " + brake);
+            sw.WriteLine("Fdrag: " + this.Fdrag.Length() + " Frr: " + this.Frr.Length());
+            sw.WriteLine("Flong: " + this.Flong);
+            sw.WriteLine("Flat rear: " + this.Flat_rear.Z + " Flat front: " + this.Flat_front.Z);
+            sw.WriteLine("WC Acceleration: " + this.acceleration_wc.Length());
+            sw.WriteLine("WC Velocity: " + this.velocity_wc.Length());
         }
 
         // Drag Force
@@ -385,19 +479,51 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
         }
 
         // - Engine Force
-        public Vector GetTractionForce()
+
+        public float GetSlipRatio()
         {
-            return new Vector((throttle * torque_wheel) / wheel_radius, 0, 0);
+            if (velocity.Length() == 0)
+                return 0;
+
+            // If the car is braking
+            if (brake > 0)
+                return -1;
+
+            // return ((wheel_angular_velocity * wheel_radius) - velocity.Length()) / velocity.Length();
+            return ((wheel_angular_velocity * wheel_radius) - velocity.X) / FastMath.Abs(velocity.X);
         }
 
-        public float GetWheelTorque()
+        public Vector GetTractionForce()
+        {
+            Vector force = new Vector(Ct * slip_ratio, 0, 0);
+
+            if (force.X > 6000)
+                force.X = 6000;
+
+            return force;
+
+            // Cap the force to a maximum value so that the force doesn't increase 
+            // after the slip ratio passes the peak value.
+        }
+
+        public float GetTractionTorque()
+        {
+            return Ftraction.X / wheel_radius;
+        }
+
+        public Vector GetDriveForce()
+        {
+            return new Vector(torque_drive / wheel_radius, 0, 0);
+        }
+
+        public float GetDriveTorque()
         {
             return torque_engine * gears_ratio[gear] * Xd * n;
         }
 
         public float GetEngineTorque()
         {
-            return LookupTorqueCurve(rpm_engine);
+            return throttle * LookupTorqueCurve(rpm_engine);
         }
 
         public float LookupTorqueCurve(float rpm)
@@ -423,10 +549,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
             return 0;
         }
 
-        // Engine RPM
         public float GetEngineTurnOverRate()
         {
-            float temp = FastMath.Abs((velocity.X * 60 * gears_ratio[gear] * Xd) / (2 * FastMath.PI * wheel_radius));
+            float temp = FastMath.Abs((rear_wheel_angular_velocity * 60 * gears_ratio[gear] * Xd) / (2 * FastMath.PI));
 
             if (temp > rpm_red_line)
                 return rpm_red_line;
@@ -436,14 +561,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
 
             return temp;
         }
-
-        // Wheel angular velocity
-        public float GetWheelAngularVelocity()
-        {
-            return 2 * FastMath.PI * rpm_engine / 60 * gears_ratio[gear] * Xd;
-        }
-
-        // ------------------------------------
 
         public void AutomaticTransmission()
         {
@@ -472,71 +589,62 @@ namespace AlumnoEjemplos.LucasArtsTribute.Models
 
         public float GetCarSideSlipAngle()
         {
-            if (FastMath.Abs(velocity.X) < 1)
-                return 0;
-
             if (velocity.X == 0)
                 return 0;
 
-            return FastMath.Atan(velocity.Z / FastMath.Abs(velocity.X));
+            return FastMath.Atan2(velocity.Z, FastMath.Abs(velocity.X));
         }
 
         public float GetFrontWheelSlipAngle()
         {
-            if (FastMath.Abs(velocity.X) < 1)
+            if (velocity.X == 0)
                 return 0;
 
-            return FastMath.Atan((velocity.Z + (angular_velocity * b)) / FastMath.Abs(velocity.X)) - steering_angle * Math.Sign(velocity.X);
+            return FastMath.Atan2((velocity.Z + (car_angular_velocity * b)), FastMath.Abs(velocity.X)) - steerangle /** Math.Sign(velocity.X)*/;
         }
 
         public float GetRearWheelSlipAngle()
         {
-            if (FastMath.Abs(velocity.X) < 1)
+            if (velocity.X == 0)
                 return 0;
 
-            return FastMath.Atan((velocity.Z - (angular_velocity * c)) / FastMath.Abs(velocity.X));
+            return FastMath.Atan2((velocity.Z - (car_angular_velocity * c)), FastMath.Abs(velocity.X));
         }
 
-        public float GetFrontLateralForce()
+        public Vector GetFrontLateralForce()
         {
-            float temp = Ca_front * wheel_front_slip_angle;
+            Vector force = new Vector(0, 0, 0);
 
-            /*
-            if (FastMath.Abs(max_friction) < FastMath.Abs(temp))
-                temp = max_friction;
-            */
-            temp = FastMath.Min(max_friction, temp);
-            temp = FastMath.Max(-max_friction, temp);
+            force.Z = Ca_front * wheel_front_slip_angle;
 
-            temp *= weight * 0.5f;
-            //temp *= load;
+            force.Z = FastMath.Min(max_friction, force.Z);
+            force.Z = FastMath.Max(-max_friction, force.Z);
 
-            //temp *= 0.5f;
+            //force = force * 5000;
+            force.Z = force.Z * weight * 0.5f;
+            //force.Z = force.Z * (float)Math.Cos(steering_angle);
 
-            return temp;
+            return force;
         }
 
-        public float GetRearLateralForce()
+        public Vector GetRearLateralForce()
         {
-            float temp = Ca_rear * wheel_rear_slip_angle;
-            /*
-            if (FastMath.Abs(max_friction) < FastMath.Abs(temp))
-                temp = max_friction;
-            */
-            temp = FastMath.Min(max_friction, temp);
-            temp = FastMath.Max(-max_friction, temp);
+            Vector force = new Vector(0, 0, 0);
 
-            temp *= weight * 0.5f;
-            //temp *= load; 
+            force.Z = Ca_rear * wheel_rear_slip_angle;
 
-            //temp *= 0.5f;
+            force.Z = FastMath.Min(max_friction, force.Z);
+            force.Z = FastMath.Max(-max_friction, force.Z);
 
-            return temp;
+            //force = force * 5000;
+            force = force * weight * 0.5f;
+
+            return force;
         }
 
         public float GetCarTorque()
         {
-            return FastMath.Cos(steering_angle) * Flat_front.Z * b - Flat_rear.Z * c;
+            return FastMath.Cos(steerangle) * Flat_front.Length() * b - Flat_rear.Length() * c;
         }
 
         // ------------------------------------

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-using AlumnoEjemplos.LucasArtsTribute.Models;
+using AlumnoEjemplos.LucasArtsTribute.Car;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
