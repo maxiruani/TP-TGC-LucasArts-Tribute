@@ -70,7 +70,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //GuiController.Instance: acceso principal a todas las herramientas del Framework
             Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
             //Crear piso
-            TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice, GuiController.Instance.ExamplesMediaDir + "Texturas\\tierra.jpg");
+            TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice,
+                                                              GuiController.Instance.ExamplesMediaDir +
+                                                              "Texturas\\tierra.jpg");
             piso = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
 
             //Cargar obstaculos y posicionarlos. Los obstáculos se crean con TgcBox en lugar de cargar un modelo.
@@ -82,41 +84,27 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //Obstaculo 1
             _obstacles.Add(wheelBox);
 
-            //Cargar personaje principal
-            /*
-            TgcSceneLoader loader = new TgcSceneLoader();
-            TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\Meshes\\C5_body.xml");
-
-            car = new Model();
-            car.Mesh = scene.Meshes[0];
-            car.Mesh.Position = new Vector3(0, -50, 0);
-            // new CarReflection().EffectEnable(car);
-            */
             String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
             car = new Vehicle(config);
 
-            //Crear caja para indicar ubicacion de la luz
-            // lightBox = TgcBox.fromSize(new Vector3(5, 5, 5), Color.Yellow);
-            
 
-            //Hacer que el Listener del sonido 3D siga al personaje
-            // GuiController.Instance.DirectSound.ListenerTracking = car.;
-
-            //Configurar camara en Tercer Persona
-            /*
-            GuiController.Instance.ThirdPersonCamera.Enable = true;
-            GuiController.Instance.ThirdPersonCamera.setCamera(car.Position, 200, 300);
-            GuiController.Instance.ThirdPersonCamera.TargetDisplacement = new Vector3(0, 100, 0);
-            */
-            // Crear la cámara
             cam = new Camara();
             cam.SetCenterTargetUp(CAM_DELTA, new Vector3(0, 0, 0), new Vector3(0, 1, 0), true);
             cam.Enable = true;
             GuiController.Instance.CurrentCamera = cam;
             LoadCamara(true);
 
-            
-
+            /*
+             * Se configura el reflejo sobre el auto. (CarReflection)
+             * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
+            */
+            //Reflejo en el auto
+            _carReflection = new CarReflection(car);
+            _carReflection.Render();
+            //Crear caja para indicar ubicacion de la luz
+            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);
+            //lightBox.
+        
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
             {
@@ -270,13 +258,22 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 }
             }
             */
-            //Mover mesh que representa la luz
-         //   lightBox.Position = lightPosition;
-            // Render del Auto
+
+            LightAndReflection();
+
             car.Render();
             LoadCamara(false);
 
             // car.Instrumental.GetValues().ForEach(item => item.render());
+        }
+
+        private void LightAndReflection()
+        {
+//lightBox representa a la fuente de luz. Habría que colocarlo en algún angulo superior. Tal vez no sería necesario mostrarlo.
+            Vector3 lightPosition = (Vector3) GuiController.Instance.Modifiers["LightPosition"];
+            lightBox.Position = lightPosition;
+            lightBox.render();
+            _carReflection.Render();
         }
 
         private TgcBox lightBox;
@@ -309,7 +306,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public Camara cam;
         Vector3 CAM_DELTA = new Vector3(0, 50, 250);
-
-
+        private CarReflection _carReflection;
     }
 }
