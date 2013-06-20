@@ -10,9 +10,9 @@ using TgcViewer.Utils.TgcSceneLoader;
 namespace AlumnoEjemplos.LucasArtsTribute
 {
     class OrientedBoundingBox
-    {
+    {/*
         public Vector3 size; // Tamaño de la caja
-        /*
+        
         public  bool isBoundingBox()
         {
             return true;
@@ -136,7 +136,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             caja.Rotation = new Vector33(0, FastMath.PI + this.angle, 0);
             caja.render();
         }
-
-    }*/
+    */
     }
 }

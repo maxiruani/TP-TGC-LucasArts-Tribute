@@ -1,43 +1,41 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Drawing;
 using AlumnoEjemplos.LucasArtsTribute.Circuit;
+using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer;
 using TgcViewer.Example;
-using TgcViewer.Utils.Modifiers;
-using TgcViewer.Utils.Terrain;
-using TgcViewer.Utils.TgcSceneLoader;
-using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.Input;
-using TgcViewer.Utils.TgcSkeletalAnimation;
 using TgcViewer.Utils.Sound;
-
-using AlumnoEjemplos.LucasArtsTribute;
-using AlumnoEjemplos.LucasArtsTribute.Car;
-using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
+using TgcViewer.Utils.TgcGeometry;
+using TgcViewer.Utils.TgcSceneLoader;
+using Device = Microsoft.DirectX.Direct3D.Device;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
     /// <summary>
-    /// Ejemplo del alumno
+    ///     Ejemplo del alumno
     /// </summary>
     public class LucasArtsTribute : TgcExample
     {
-
-        TgcBox piso;
-        List<TgcBox> obstaculos;
+        private CarReflection _carReflection;
         private List<Obstacle> _obstacles;
-        List<Tgc3dSound> sonidos;
+        private int _originalHeight;
+        private int _originalWidth;
+        public Camara cam;
         // Model car;
-        Vehicle car;
+        private Vehicle car;
+        private TgcBox lightBox;
+        private List<TgcBox> obstaculos;
+        private TgcBox piso;
+        private List<Tgc3dSound> sonidos;
 
         /// <summary>
-        /// Categoría a la que pertenece el ejemplo.
-        /// Influye en donde se va a haber en el árbol de la derecha de la pantalla.
+        ///     Categoría a la que pertenece el ejemplo.
+        ///     Influye en donde se va a haber en el árbol de la derecha de la pantalla.
         /// </summary>
         public override string getCategory()
         {
@@ -45,7 +43,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         }
 
         /// <summary>
-        /// Completar nombre del grupo en formato Grupo NN
+        ///     Completar nombre del grupo en formato Grupo NN
         /// </summary>
         public override string getName()
         {
@@ -53,7 +51,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         }
 
         /// <summary>
-        /// Completar con la descripción del TP
+        ///     Completar con la descripción del TP
         /// </summary>
         public override string getDescription()
         {
@@ -61,14 +59,16 @@ namespace AlumnoEjemplos.LucasArtsTribute
         }
 
         /// <summary>
-        /// Método que se llama una sola vez,  al principio cuando se ejecuta el ejemplo.
-        /// Escribir aquí todo el código de inicialización: cargar modelos, texturas, modifiers, uservars, etc.
-        /// Borrar todo lo que no haga falta
+        ///     Método que se llama una sola vez,  al principio cuando se ejecuta el ejemplo.
+        ///     Escribir aquí todo el código de inicialización: cargar modelos, texturas, modifiers, uservars, etc.
+        ///     Borrar todo lo que no haga falta
         /// </summary>
         public override void init()
         {
             //GuiController.Instance: acceso principal a todas las herramientas del Framework
-            Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
+            Device d3dDevice = GuiController.Instance.D3dDevice;
+            _originalWidth = d3dDevice.Viewport.Width;
+            _originalHeight = d3dDevice.Viewport.Height;
             //Crear piso
             TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice,
                                                               GuiController.Instance.ExamplesMediaDir +
@@ -84,140 +84,102 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //Obstaculo 1
             _obstacles.Add(wheelBox);
 
-            String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-            car = new Vehicle(config);
+            _players = new List<Player>();
+            
+            SetCarParameters(1);
 
+            //Ejecutar en loop los sonidos
+            foreach (Tgc3dSound s in sonidos)
+            {
+                s.play(true);
+            }
+        }
 
-            cam = new Camara();
-            cam.SetCenterTargetUp(CAM_DELTA, new Vector3(0, 0, 0), new Vector3(0, 1, 0), true);
-            cam.Enable = true;
-            GuiController.Instance.CurrentCamera = cam;
-            LoadCamara(true);
+        private void SetCarParameters(int playersCount)
+        {
+            for (int i = 0; i < playersCount; i++)
+            {
+                String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
+                Player player = new Player(piso, config, "Player" + i);
+                _players.Add(player);
+            }
+            // GuiController.Instance.CurrentCamera = cam;
 
             /*
              * Se configura el reflejo sobre el auto. (CarReflection)
              * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
             */
             //Reflejo en el auto
-            _carReflection = new CarReflection(car);
+            /*_carReflection = new CarReflection(car);
             _carReflection.Render();
             //Crear caja para indicar ubicacion de la luz
-            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);
-            //lightBox.
-        
-            //Ejecutar en loop los sonidos
-            foreach (Tgc3dSound s in sonidos)
-            {
-                s.play(true);
-            }
-
-        }
-
-        private void LoadCamara(bool teleport)
-        {
-            // Extraigo los ejes del auto de su matriz transformación
-            Vector3 carPosition = car.GetPosition();
-            Vector3 z = car.ZAxis();
-            Vector3 y = car.YAxis();
-            Vector3 x = car.XAxis();
-
-            // Seteo la cámara en función de la posición del avion
-            Vector3 camera = carPosition + cam.ActualCamara.Y * y + cam.ActualCamara.Z * z;
-            Vector3 target = carPosition + cam.ActualCamara.Y * y;
-            
-            /*Vector3 camera = carPosition + CAM_DELTA.Y * y + CAM_DELTA.Z * z;
-            Vector3 target = carPosition + CAM_DELTA.Y * y;
-            */cam.SetCenterTargetUp(camera, target, new Vector3(0, 1, 0), teleport);
+            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);*/
         }
 
 
-
-        /*
-        public void ProcessInput(TgcD3dInput input)
-        {
-            // Acelerador
-            
-            if (input.keyDown(Key.Up))
-            {
-                car.throttle = 100;
-                car.brake = 0;
-
-            }
-            else if (input.keyDown(Key.Down))
-            {
-                car.brake = 0;
-                car.throttle = -20;
-            }
-            else
-            {
-                car.throttle = 0;
-                car.brake = 0;
-            }
-            
-            
-            if (input.keyDown(Key.Up))
-            {
-                if (car.throttle < 100) 
-                    car.throttle += 10;
-
-                if (car.throttle > 100)
-                    car.throttle = 100;
-            }
-            else
-            {
-                if (car.throttle >= 1)
-                    car.throttle -= 1;
-            }
-
-            if (input.keyDown(Key.Space))
-            {
-                this.car.brake = 100;
-            }
-            else
-            {
-                this.car.brake = 0;
-            }
-            
-            
-            if (input.keyDown(Key.Left))
-            {
-                if (car.steerangle <= -car.STEER_ANGLE_MAX)
-                    car.steerangle = -car.STEER_ANGLE_MAX;
-                else
-                    car.steerangle -= car.STEER_ANGLE_RATIO;
-
-            }
-            else if (input.keyDown(Key.Right))
-            {
-                if (car.steerangle >= car.STEER_ANGLE_MAX)
-                    car.steerangle = car.STEER_ANGLE_MAX;
-                else
-                    car.steerangle += car.STEER_ANGLE_RATIO;
-            }
-            else
-            {
-                if (car.steerangle < 0)
-                    car.steerangle += car.STEER_RATIO_BACK;
-
-                if (car.steerangle > 0)
-                    car.steerangle -= car.STEER_RATIO_BACK;
-            }
-            
-        }
-        */
 
         /// <summary>
-        /// Método que se llama cada vez que hay que refrescar la pantalla.
-        /// Escribir aquí todo el código referido al renderizado.
-        /// Borrar todo lo que no haga falta
+        ///     Método que se llama cada vez que hay que refrescar la pantalla.
+        ///     Escribir aquí todo el código referido al renderizado.
+        ///     Borrar todo lo que no haga falta
         /// </summary>
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
             //Device de DirectX para renderizar
-            Microsoft.DirectX.Direct3D.Device d3dDevice = GuiController.Instance.D3dDevice;
-           // Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
+            Device d3dDevice = GuiController.Instance.D3dDevice;
+            // Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
+            if (_players.Count == 2)
+            {
+                LeftViewPort(elapsedTime, d3dDevice);
+                RightViewPort(elapsedTime, d3dDevice);
+            }
+            if (_players.Count == 1)
+            {
+                _players[0].RenderPlayer(elapsedTime);
+            }
+            // car.Instrumental.GetValues().ForEach(item => item.render());
+        }
 
+
+
+        private void RightViewPort(float elapsedTime, Device d3dDevice)
+        {
+            d3dDevice.EndScene();
+            // Set up view-port properties
+            var rightViewPort = new Viewport();
+            rightViewPort.X = 0;
+            rightViewPort.Y = _originalHeight;
+            rightViewPort.Width = _originalWidth;
+            rightViewPort.Height = _originalHeight/2;
+            rightViewPort.MinZ = 0.0f;
+            rightViewPort.MaxZ = 1.0f;
+
+            d3dDevice.Viewport = rightViewPort;
+
+            // Now we can clear just view-port's portion of the buffer to green...
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer,
+                            Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
+
+            d3dDevice.BeginScene();
+        }
+
+        private void LeftViewPort(float elapsedTime, Device d3dDevice)
+        {
+            d3dDevice.EndScene();
+            var leftViewPort = new Viewport();
+            leftViewPort.X = 0;
+            leftViewPort.Y = 0;
+            leftViewPort.Width = _originalWidth;
+            leftViewPort.Height = _originalHeight/2;
+            leftViewPort.MinZ = 0.0f;
+            leftViewPort.MaxZ = 1.0f;
+
+            d3dDevice.Viewport = leftViewPort;
+            // Now we can clear just view-port's portion of the buffer to green...
+            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer,
+                            Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
+            d3dDevice.BeginScene();
             TgcD3dInput input = GuiController.Instance.D3dInput;
 
             // ProcessInput(input);
@@ -228,7 +190,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 cam.ChangeCamara();
             }
 
-            float delta_t = elapsedTime * 5;
+            float delta_t = elapsedTime*5;
 
             // car.DoPhysics(delta_t);
 
@@ -236,7 +198,12 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             // Render piso
             piso.render();
-            
+
+            LightAndReflection();
+
+            car.Render();
+            //LoadCamara(false);
+
             // Render obstaculos
             /*
             Vector3 lastPos = car.Mesh.Position;
@@ -258,34 +225,24 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 }
             }
             */
-
-            LightAndReflection();
-
-            car.Render();
-            LoadCamara(false);
-
-            // car.Instrumental.GetValues().ForEach(item => item.render());
         }
 
         private void LightAndReflection()
         {
 //lightBox representa a la fuente de luz. Habría que colocarlo en algún angulo superior. Tal vez no sería necesario mostrarlo.
-            Vector3 lightPosition = (Vector3) GuiController.Instance.Modifiers["LightPosition"];
+            var lightPosition = (Vector3) GuiController.Instance.Modifiers["LightPosition"];
             lightBox.Position = lightPosition;
             lightBox.render();
             _carReflection.Render();
         }
 
-        private TgcBox lightBox;
-
         private void CheckCollisionPos()
         {
-            
         }
 
         /// <summary>
-        /// Método que se llama cuando termina la ejecución del ejemplo.
-        /// Hacer dispose() de todos los objetos creados.
+        ///     Método que se llama cuando termina la ejecución del ejemplo.
+        ///     Hacer dispose() de todos los objetos creados.
         /// </summary>
         public override void close()
         {
@@ -303,9 +260,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
         }
 
-
-        public Camara cam;
-        Vector3 CAM_DELTA = new Vector3(0, 50, 250);
-        private CarReflection _carReflection;
+        private List<Player> _players;
     }
 }
