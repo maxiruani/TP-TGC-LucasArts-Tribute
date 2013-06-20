@@ -298,6 +298,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public float delta_t;                           // Elapsed time
 
+        private Velocimetro velocimetro;
+
         StreamWriter sw;
 
         public Vehicle(String path)
@@ -314,6 +316,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             ResetVehicle();		// Inicializo el vehiculo
             SetupVehicle();	    // Seteo el vehiculo
             ResetVariables();	// Inicializo todas las variables
+
+            this.velocimetro = new Velocimetro();
         }
 
         private bool SetConfigData(String path)
@@ -921,6 +925,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public void ControlInput(TgcD3dInput input, float elapsed_time)
         {
 
+            //Por defecto le indica al velocimetro que no acelera
+            velocimetro.acelera = false;
+
             // Seteo el tiempo
             delta_t = elapsed_time;
 
@@ -931,6 +938,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             {
                 breaking = false;			// No esta frenando
                 freeMoving = false;			// No esta en libre movimiento
+
+                velocimetro.acelera = true;
 
                 // Incremento el pedal de aceleracion de 0% a 100%
                 s_throttleAmount += 0.1f; 
@@ -954,6 +963,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             if (input.keyDown(Key.S))
             {
                 breaking = true;			// Se esta frenando
+
+                velocimetro.acelera = true;
 
                 // Incremento el pedal de freno de 0% a 100%
                 s_brakeAmount += 0.01f; 
@@ -1454,7 +1465,21 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             frw.render();
             blw.render();
             brw.render();
+
+            // Actualizar velocimetro
+
+            /*velocimetro.setVelocidad(this.velocity_wc.length()); */
+            velocimetro.setVelocidad(v_velocity.Length());
+            velocimetro.setCambio(s_gear);
+            velocimetro.render();
+
         }
+
+        public void dispose()
+        {
+            velocimetro.dispose();
+        }
+
 
         public Vector3 GetPosition()
         {

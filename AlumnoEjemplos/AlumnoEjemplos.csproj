@@ -102,6 +102,7 @@
     <Compile Include="LucasArtsTribute\Utils\ConfigurationManager.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\OrientedBoundingBox.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\Vehicle.cs" />
+    <Compile Include="LucasArtsTribute\Velocimetro.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
