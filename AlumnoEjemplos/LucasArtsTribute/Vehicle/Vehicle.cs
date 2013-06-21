@@ -13,6 +13,7 @@ using TgcViewer.Utils.Input;
 
 using AlumnoEjemplos.LucasArtsTribute.Utils;
 using AlumnoEjemplos.LucasArtsTribute.Components;
+using AlumnoEjemplos.LucasArtsTribute.Sound;
 
 namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 {
@@ -62,7 +63,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         /*
          * Retorna el angulo wrapeado
          */
-        public static float WrapValue(float a)																					// returns angle wrapvalue
+        public static float WrapValue(float a)
         {
             if (a < 0.0f) { return (2.0f * MathHelper.PI) + a; }
             if (a > (2.0f * MathHelper.PI)) { return a - (2.0f * MathHelper.PI); }
@@ -120,11 +121,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public string bodyTex;				// path of the body texture
         public string tyreTex;				// path of the tyre texture
 
-        /*
-	    string engineSnd;				    // path of the engine sound
-	    string hornSnd;					    // path of the horn sound
-	    string brakeSnd;				    // path of the brake sound
-        */
+	    public string engineSnd;			// path of the engine sound
+	    public string hornSnd;				// path of the horn sound
+	    public string brakeSnd;				// path of the brake sound
 
         public float mass;					// vehicle mass
         public float wheelMass;				// vehicle wheel mass
@@ -136,7 +135,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public float wheelRadius;			// radius of the vehicle wheel
 	    
         
-        public float groundHeight;				    // height between vehicle and ground
+        public float groundHeight;			// height between vehicle and ground
 	    /*
         float springLength;				    // original length of the suspension spring			
 	    float springConst;				    // suspension spring constant
@@ -145,7 +144,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public float brakeTorque;			// torque applied to lock wheels
         public float[] gearRatio;			// stores the gear 1 to 6 ratios (0 is reverse)
         public float diffRatio;				// stores the differential ratio
-	    public float transEff;					    // stores the transmission efficiency
+	    public float transEff;			    // stores the transmission efficiency
 
         public Vector3 cog;				    // vehicle centre of gravity (z axis offset)
         public Vector3 fl;					// default position of front left wheel
@@ -174,6 +173,14 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public TgcMesh frw;				// pointer to car front right wheel	
         public TgcMesh blw;				// pointer to car bakc left wheel
         public TgcMesh brw;				// pointer to car back right wheel
+
+        // vehicle sounds
+        LATSound engine;				// Sonido del motor
+        LATSound brake;					// Sonido de los frenos
+        LATSound horn;					// Sonido de la bocina
+        bool brk;						// Usado para determinar cuando comenzar el sonido de los frenos
+        float brkSpd;					// Loguea la velocidad actual al momento de frenar
+        float curRpm;					// RPM's del motor para sonido realista
 
         /*
          * Variables matematicas
@@ -219,7 +226,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         float s_frontCornerStiff;		// stores the cornering stiffness of the front wheels
         float s_rearCornerStiff;		// stores the cornering stiffness of the rear wheels
         float s_omega;					// vehicle angular velocity at low speed
-        float s_omega2;					// vehicle angular velocity at high speed
+        //float s_omega2;					// vehicle angular velocity at high speed
         float s_frontAlpha;				// vehicle front wheel sideslip angle
         float s_rearAlpha;				// vehicle rear wheel sideslip angle
         float s_beta;					// vehicle body sideslip angle
@@ -304,8 +311,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public Vehicle(String path)
         {
-            //sw = new StreamWriter("D:\\TGC-Logs\\log.txt");
-            //sw.WriteLine("Instance Car");
+            sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
+            sw.WriteLine("Instance Car");
 
             // Seteo las propiedades del auto que se obtuvieron del archivo de configuracion.
             bool isOk = SetConfigData(path);
@@ -345,9 +352,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 make.cog.Z = config.GetFloatValue("cog.z");
                 make.wheelRadius = config.GetFloatValue("wheelRadius");
                 make.groundHeight = config.GetFloatValue("groundHeight");
-
-                //make.springLength = config.GetFloatValue("springLength");
-                //make.springConst = config.GetFloatValue("springConst");
 
                 make.transEff = config.GetFloatValue("transEff");
                 make.diffRatio = config.GetFloatValue("diffRatio");
@@ -390,6 +394,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 make.tyreObj = config.GetValue("tyre.mesh");
                 make.tyreTex = config.GetValue("tyre.texture");
 
+                make.engineSnd = config.GetValue("engineSnd");
+                make.hornSnd = config.GetValue("hornSnd");
+                make.brakeSnd = config.GetValue("brakeSnd");
             }
             catch (Exception e)
             {
@@ -434,6 +441,15 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             frw.Scale = new Vector3(make.wScl.X, make.wScl.Y, make.wScl.Z);
             blw.Scale = new Vector3(make.wScl.X, make.wScl.Y, make.wScl.Z); 
             brw.Scale = new Vector3(make.wScl.X, make.wScl.Y, make.wScl.Z);
+
+            // Seteo los sonidos del vehiculo
+            engine = new LATSound(make.engineSnd); 
+            engine.Volume = 90;
+
+            horn = new LATSound(make.hornSnd);
+            horn.Volume = 90;
+            
+            brake = new LATSound(make.brakeSnd);
         }
 
         /*
@@ -460,29 +476,25 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
          */
         void CalcVehicleCoord()
         {
-            // get car front ground coordinates
+            // Coordenadas del frente del vehiculo
             fPos.X = MathHelper.TranslateX(body.Position.X, body.Rotation.Y, make.fl.Z);
             fPos.Z = MathHelper.TranslateZ(body.Position.Z, body.Rotation.Y, make.fl.Z);
             fPos.Y = 0;
-            //fPos.Y = land->getElandHeight(fPos.X, fPos.Z, 0);
 
-            // get car back ground coordinates
+            // Coordenadas de la parte trasera del vehiculo
             bPos.X = MathHelper.TranslateX(body.Position.X, body.Rotation.Y, make.bl.Z);
             bPos.Z = MathHelper.TranslateZ(body.Position.Z, body.Rotation.Y, make.bl.Z);
             bPos.Y = 0;
-            //bPos.Y = land->getElandHeight(bPos.X, bPos.Z, 0);
 
-            // get car left ground coordinates
+            // Coordenadas de la parte izquierda del vehiculo
             lPos.X = MathHelper.TranslateX(body.Position.X, body.Rotation.Y + (MathHelper.PI / 2.0f), make.fl.X);
             lPos.Z = MathHelper.TranslateZ(body.Position.Z, body.Rotation.Y + (MathHelper.PI / 2.0f), make.fl.X);
             lPos.Y = 0;
-            //lPos.Y = land->getElandHeight(lPos.X, lPos.Z, 0);
 
-            // get car right ground coordinates
+            // Coordendas de la parte derecha del vehiculo
             rPos.X = MathHelper.TranslateX(body.Position.X, body.Rotation.Y + (MathHelper.PI / 2.0f), make.fr.Z);
             rPos.Z = MathHelper.TranslateZ(body.Position.Z, body.Rotation.Y + (MathHelper.PI / 2.0f), make.fr.Z);
             rPos.Y = 0;
-            //rPos.Y = land->getElandHeight(rPos.X, rPos.Z, 0);
         }
 
         /*
@@ -492,7 +504,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         {
             CalcVehicleCoord();						        // Calcular las coordenadas del vehiculo
             s_vehicleWeight = MathHelper.g * make.mass;     // Calcular el peso del vehiculo
-            // s_weightForce = s_vehicleWeight;
             s_weightForce = 0;
         }
 
@@ -779,25 +790,12 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         }
 
         /*
-         * Calcular la velocidad angular del auto cuando esta girando a alta velocidad
-         */
-        public void CalcAngVel2()
-        {
-            CalcVehicleCoord();																	    // Calcular coordenadas del vehiculo
-            float b = MathHelper.Distance(v_rCOG, fPos);										    // Distancia entre el centro de gravedad y el frente del vechiculo
-            float c = MathHelper.Distance(v_rCOG, bPos);										    // Distancia entre el centro de gravedad y la parte trasera del vehiculo
-            float t = (FastMath.Cos(wAng) * s_frontLateralForce * b) + (s_rearLateralForce * c);    // Torque angular total
-            float a = t / s_inertia;															    // Aceleracion angular
-            s_omega2 = delta_t * a;												                    // Velocidad angular
-        }
-
-        /*
          * Setear la posicion de la Rueda Frontal Izquierda
          */
         public void PositionFrontLeftWheel()
         {
             // Seteo la posicion
-            flw.Position = new Vector3(v_flwRPos.X, v_flwRPos.Y /*+ s_springNExt - s_oscExt*/, v_flwRPos.Z);
+            flw.Position = new Vector3(v_flwRPos.X, v_flwRPos.Y, v_flwRPos.Z);
 
             // Seteo el angulo
             flw.rotateX((s_fwAngVelocity * delta_t) / (2.0f * MathHelper.PI));
@@ -806,7 +804,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 flw.rotateX(-6.2857f);
 
             flw.SetRotationY(body.Rotation.Y + wAng);
-            //flw.SetRotationZ(body.Rotation.Z /*+ nzWeightAng*/); // TODO: Chequear esto.
+            flw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
         }
 
         /*
@@ -815,7 +813,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public void PositionFrontRightWheel()
         {
             // Seteo la posicion
-            frw.Position = new Vector3(v_frwRPos.X, v_frwRPos.Y /*+ s_springNExt - s_oscExt*/, v_frwRPos.Z);
+            frw.Position = new Vector3(v_frwRPos.X, v_frwRPos.Y, v_frwRPos.Z);
 
             // Seteo el angulo
             frw.rotateX((s_fwAngVelocity * delta_t) / (2.0f * MathHelper.PI));
@@ -824,7 +822,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 frw.rotateX(-6.2857f);
 
             frw.SetRotationY(body.Rotation.Y + wAng);
-            //frw.SetRotationZ(body.Rotation.Z /*+ nzWeightAng*/); // TODO: Chequear esto.
+            frw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
         }
 
         /*
@@ -842,7 +840,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 blw.rotateX(-6.2857f);
 
             blw.SetRotationY(body.Rotation.Y);
-            //blw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
+            blw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
         }
 
         /*
@@ -860,7 +858,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 brw.rotateX(-6.2857f);
 
             brw.SetRotationY(body.Rotation.Y);
-            //brw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
+            brw.SetRotationZ(body.Rotation.Z + nzWeightAng); // TODO: Chequear esto.
         }
 
         /*
@@ -897,8 +895,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             s_bodyCurveZ = s_curveValue(zAng, s_bodyCurveZ, 1.001f);
             */
 
-            //body.rotateX(nxWeightAng);
-            //body.rotateZ(nzWeightAng);
+            body.SetRotationX(-nxWeightAng);
+            body.SetRotationZ(-nzWeightAng);
         }
 
         /*
@@ -924,10 +922,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
          */
         public void ControlInput(TgcD3dInput input, float elapsed_time)
         {
-
-            //Por defecto le indica al velocimetro que no acelera
-            velocimetro.acelera = false;
-
             // Seteo el tiempo
             delta_t = elapsed_time;
 
@@ -938,8 +932,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             {
                 breaking = false;			// No esta frenando
                 freeMoving = false;			// No esta en libre movimiento
-
-                velocimetro.acelera = true;
 
                 // Incremento el pedal de aceleracion de 0% a 100%
                 s_throttleAmount += 0.1f; 
@@ -963,8 +955,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             if (input.keyDown(Key.S))
             {
                 breaking = true;			// Se esta frenando
-
-                velocimetro.acelera = true;
 
                 // Incremento el pedal de freno de 0% a 100%
                 s_brakeAmount += 0.01f; 
@@ -1130,6 +1120,44 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             return 0.0f;
         }
 
+        public void ControlSound(TgcD3dInput input, float elapsed_time)
+        {
+			// Sonido del Motor
+            engine.SetLoopPosition(130000);
+            curRpm = MathHelper.CurveValue(s_rpm, curRpm, 1.01f, elapsed_time);
+			int freq = (int)((curRpm / 7000) * 12050) + 10000;
+            engine.Frequency = freq;
+
+			// Sonido de la bocina
+            if (input.keyDown(Key.H) && (!horn.Playing))
+                horn.Play();
+
+			// Sonido de frenado
+			if (breaking)
+			{
+				if (brk == true)
+				{
+					brkSpd = s_speed;														// calculate speed at brake point
+
+					float vol = 80.0f + ((brkSpd / 70.0f) * 20.0f); 
+                    brake.Volume = (int) vol;		                                        // derive volume from brake speed
+
+					float frq = 8000.0f + ((brkSpd / 70.0f) * 3000.0f); 
+                    brake.Frequency = (int) frq;	                                        // derive frquency from brake speed
+					
+                    brake.Play();															// play brake sound
+					brk = false;
+				}
+				if ((s_speed == 0.0f) && (brake.Playing)) 
+                    brake.Stop();						                                    // stop sound when vehicle stops
+			}
+            else
+            {
+				brk = true; 
+				if(brake.Playing) brake.Stop();
+			}
+        }
+
         /*
          * Proceso todos los datos. La fisica del motor.
          */
@@ -1142,7 +1170,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 	        ControlInput(input, elapsed_time);	// Proceso la entrada de datos del teclado
 	        CalcWheelWeight();	                // Calculo la fuerza peso de las ruedas TODO: Chequear esto											
 	        CalcWeightForce();	                // Calculo la fuerza peso TODO: Chequear esto
-	        // CalcSuspension();	            // TODO: Chequear esto
 
             // ---                                           ---
             // --- Determino la fuerza de traccion del motor ---
@@ -1368,10 +1395,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 	        s_hsRadius = (make.mass * FastMath.Pow2(s_speed)) / s_centripetalForce;
 
 	        CalcAngVel();		// Calcular la velocidad angular a baja velocidad
-	        CalcAngVel2();		// Calcular la velocidad angular a alta velocidad
 
-
-            // PrintDebugInfo();
+            ControlSound(input, elapsed_time);
+            //PrintDebugInfo();
             /*
 	        printDebugInfo();	// print debug information
 	        controlHUD();		// control the vehicle HUD
@@ -1438,7 +1464,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			s_vehicleWeight				= MathHelper.g * make.mass;
 			s_wheelWeight				= MathHelper.g * make.wheelMass;
 			s_omega						= 0.0f;
-			s_omega2					= 0.0f;
+			//s_omega2					= 0.0f;
 			s_inertia					= 0.0833f * make.mass * (FastMath.Pow2(make.bodyLength) + FastMath.Pow2(make.bodyWidth) + FastMath.Pow2(make.bodyHeight));
 
 			s_bodyCurveX				= 0.0f;
@@ -1467,12 +1493,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             brw.render();
 
             // Actualizar velocimetro
-
-            /*velocimetro.setVelocidad(this.velocity_wc.length()); */
-            velocimetro.setVelocidad(v_velocity.Length());
+            velocimetro.setVelocidad(v_velocity.Length(), s_rpm);
             velocimetro.setCambio(s_gear);
             velocimetro.render();
-
         }
 
         public void dispose()
@@ -1521,6 +1544,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             sw.WriteLine("v_frwRPos: " + v_frwRPos);
             sw.WriteLine("v_blwRPos: " + v_blwRPos);
             sw.WriteLine("v_brwRPos: " + v_brwRPos);
+
+            sw.WriteLine("flw.Rotation :" + flw.Rotation);
+            sw.WriteLine("frw.Rotation :" + frw.Rotation);
         }
 
     }

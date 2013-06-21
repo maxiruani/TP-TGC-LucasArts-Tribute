@@ -124,6 +124,7 @@ namespace TgcViewer.Utils.Sound
         public void play(bool playLoop)
         {
             soundBuffer.Play(0, playLoop ? BufferPlayFlags.Looping : BufferPlayFlags.Default);
+            //soundBuffer.Frequency
         }
 
         /// <summary>

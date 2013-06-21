@@ -21,6 +21,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         TgcText2d textCambio;
 
+        TgcText2d textVelocity;
+
         //Bandera de Aceleracion (no importa si es para adelante o atras)
         public bool acelera;
         float rotacionTaquimetro;
@@ -70,43 +72,25 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             //Renderizar textoCambio
             textCambio.render();
+            textVelocity.render();
         }
 
-        public void setVelocidad(float velocidad)
-        {   
-            //CAMBIO*
+        public void setVelocidad(float velocidad, float rpm)
+        {
+            textVelocity = new TgcText2d();
+            textVelocity.Text = velocidad.ToString();
+            textVelocity.Color = Color.Red;
+            textVelocity.Align = TgcText2d.TextAlign.LEFT;
+            textVelocity.Position = new Point(screenSize.Width - 130, screenSize.Height - 170);
+            textVelocity.Size = new Size(75, 25);
+            textVelocity.changeFont(new System.Drawing.Font("TimesNewRoman", 14, FontStyle.Bold));
+
             agujaVelocidad.Rotation = Geometry.DegreeToRadian(velocidad * 270 / 180);
             
-            #region Aguja Tacometro
+            if (rpm == 0)
+                rpm = 100;
 
-            float elapsedTime = GuiController.Instance.ElapsedTime;
-
-            if (acelera)
-            {
-                if (rotacionTaquimetro < 270)
-                    rotacionTaquimetro += elapsedTime * (360 - ((rotacionTaquimetro - 130) > 0 ? (rotacionTaquimetro - 120) : 0) * 4f);
-                agujaTacometro.Rotation = Geometry.DegreeToRadian(rotacionTaquimetro);
-
-                /*Simulacion, borrar para CAMBIO*.
-                if (rotacionVelocimetro < 270)
-                   rotacionVelocimetro += (elapsedTime / 3) * (360 - ((rotacionVelocimetro - 130) > 0 ? (rotacionVelocimetro - 40) : 0) * 2f);
-                agujaVelocidad.Rotation = Geometry.DegreeToRadian(rotacionVelocimetro); */
-            }
-            else
-            {
-                if (rotacionTaquimetro > 0)
-                    rotacionTaquimetro -= 360 * elapsedTime;
-                agujaTacometro.Rotation = Geometry.DegreeToRadian(rotacionTaquimetro);
-
-                /*Simulacion, borrar para CAMBIO*.
-                 if (rotacionVelocimetro > 0)
-                 rotacionVelocimetro -= 360 * elapsedTime *0.5f;
-                 agujaVelocidad.Rotation = Geometry.DegreeToRadian(rotacionVelocimetro); */
-
-            }
-
-            #endregion
-
+            agujaTacometro.Rotation = Geometry.DegreeToRadian(rpm * 270 / 180);
         }
 
         public void setCambio(int s_gear)
@@ -130,6 +114,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             agujaTacometro.dispose();
             agujaVelocidad.dispose();
             textCambio.dispose();
+            textVelocity.dispose();
         }
     }
     
