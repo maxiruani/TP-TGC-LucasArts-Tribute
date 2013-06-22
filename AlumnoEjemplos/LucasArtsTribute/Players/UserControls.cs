@@ -34,7 +34,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Players
     ///             Acelerar W
     ///             Doblar A y D
     ///             Frenar S
-    ///             Cambios R(Up) y F(Down)
+    ///             Cambios B(Up) y V(Down)
     ///             Bocina G
     /// </summary>
     class UserControlsPlayerOne : IUserControls
@@ -51,12 +51,12 @@ namespace AlumnoEjemplos.LucasArtsTribute.Players
 
         public Key GearUp()
         {
-            return Key.R;
+            return Key.B;
         }
 
         public Key GearDown()
         {
-            return Key.F;
+            return Key.V;
         }
 
         public Key Right()
