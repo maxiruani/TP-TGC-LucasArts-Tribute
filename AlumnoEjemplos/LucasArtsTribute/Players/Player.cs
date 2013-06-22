@@ -12,10 +12,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     public class Player
     {
-        public Player(TgcBox piso, String carConfiguration, Vector3 initialPosition, int numberOfPlayer)
+        public Player(TgcBox scenario, String carConfiguration, Vector3 initialPosition, int numberOfPlayer)
         {
             Car = new Vehicle(carConfiguration, initialPosition, Loader, UserControlsFactory.Create(numberOfPlayer));
-            Piso = piso;
+            Piso = scenario;
             Cam = new Camara(initialPosition);
             Cam.SetCenterTargetUp(_camDelta, initialPosition, new Vector3(0, 100, 0), true); 
             Cam.Enable = true;
@@ -69,7 +69,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public void RenderPlayer(float elapsedTime)
         {
-            // Render piso
+            // Render scenario
             Piso.render();
             Car.Render();
             LightAndReflection();

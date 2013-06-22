@@ -10,6 +10,7 @@ using TgcViewer;
 using TgcViewer.Example;
 using TgcViewer.Utils.Input;
 using TgcViewer.Utils.Sound;
+using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 using Device = Microsoft.DirectX.Direct3D.Device;
@@ -29,8 +30,12 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private Vehicle car;
         private TgcBox lightBox;
         private List<TgcBox> obstaculos;
-        private TgcBox piso;
+        private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
+        private List<Player> _players;
+        private const int NumberOfPlayers = 2;
+        private TgcSkyBox _skyBox;
+        readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
 
         /// <summary>
         ///     Categoría a la que pertenece el ejemplo.
@@ -66,11 +71,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             //GuiController.Instance: acceso principal a todas las herramientas del Framework
             Device d3dDevice = GuiController.Instance.D3dDevice;
-            //Crear piso
-            TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice,
-                                                              GuiController.Instance.ExamplesMediaDir +
-                                                              "Texturas\\tierra.jpg");
-            piso = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
+            //Cargar scenario
+            LoadScenario();
+            //Cargo SkyBox
+            LoadSkyBox();
 
             //Cargar obstaculos y posicionarlos. Los obstáculos se crean con TgcBox en lugar de cargar un modelo.
             _obstacles = new List<Obstacle>();
@@ -83,7 +87,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             _players = new List<Player>();
             
-            SetCarParameters(2);
+            SetCarParameters(NumberOfPlayers);
 
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
@@ -97,19 +101,18 @@ namespace AlumnoEjemplos.LucasArtsTribute
             if(playersCount==1)
             {
                 String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                Player player = new Player(piso, config, new Vector3(5,0,5), 1); //Envío la superficie, la configuración y la posicion inicial
+                Player player = new Player(scenario, config, new Vector3(5,-20,5), 1); //Envío la superficie, la configuración y la posicion inicial
                 _players.Add(player);
             }
             else if (playersCount == 2)
             {
                 String config1 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
                 String config2 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\TT\\TT.txt";
-                _players = Multiplayer.CreateMultiplayer(piso, config1, config2);
+                _players = Multiplayer.CreateMultiplayer(scenario, config1, config2, _skyBox);
             }
             // GuiController.Instance.CurrentCamera = cam;
 
         }
-
 
 
         /// <summary>
@@ -130,12 +133,73 @@ namespace AlumnoEjemplos.LucasArtsTribute
             if (_players.Count == 1)
             {
                 _players[0].DoPhysics(elapsedTime);
-                //_players[0].Cam.Enable = true;
                 _players[0].RenderPlayer(elapsedTime);
+                _skyBox.render();
             }
         }
 
 
+
+
+        public void LoadScenario()
+        {
+            Device d3DDevice = GuiController.Instance.D3dDevice;
+            TgcTexture pisoTexture = TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\circuito.jpg");
+            scenario = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
+
+            obstaculos = new List<TgcBox>();
+            //Pared1
+            TgcBox obstaculo = TgcBox.fromSize(
+                new Vector3(0, 0, 2500),
+                new Vector3(5000, 150, 80),
+                TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
+            obstaculos.Add(obstaculo);
+
+            //Pared2
+            obstaculo = TgcBox.fromSize(
+               new Vector3(0, 0, -2500),
+               new Vector3(5000, 150, 80),
+               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
+            obstaculos.Add(obstaculo);
+
+            //Pared3
+            obstaculo = TgcBox.fromSize(
+               new Vector3(2500, 0, 0),
+               new Vector3(80, 150, 5000),
+               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
+            obstaculos.Add(obstaculo);
+
+            //Pared4
+            obstaculo = TgcBox.fromSize(
+               new Vector3(-2500, 0, 0),
+               new Vector3(80, 150, 5000),
+               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
+            obstaculos.Add(obstaculo);
+        }
+
+
+        public void LoadSkyBox()
+        {
+            string texturesPath = _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\SkyBox1\\";
+
+            //Crear SkyBox 
+            _skyBox = new TgcSkyBox();
+            _skyBox.Center = new Vector3(0, -60, 0);
+            _skyBox.Size = new Vector3(10000, 5000, 10000);
+
+            //Configurar las texturas para cada una de las 6 caras
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Up, texturesPath + "phobos_up.jpg");
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Down, texturesPath + "phobos_dn.jpg");
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Left, texturesPath + "phobos_lf.jpg");
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Right, texturesPath + "phobos_rt.jpg");
+
+            //Hay veces es necesario invertir las texturas Front y Back si se pasa de un sistema RightHanded a uno LeftHanded
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Front, texturesPath + "phobos_bk.jpg");
+            _skyBox.setFaceTexture(TgcSkyBox.SkyFaces.Back, texturesPath + "phobos_ft.jpg");
+
+            //Actualizar todos los valores para crear el SkyBox
+            _skyBox.updateValues();
+        }
 
 
         private void CheckCollisionPos()
@@ -148,7 +212,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         /// </summary>
         public override void close()
         {
-            piso.dispose();
+            scenario.dispose();
             foreach (Obstacle obstacle in _obstacles)
             {
                 obstacle.Dispose();
@@ -162,6 +226,5 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
         }
 
-        private List<Player> _players;
     }
 }

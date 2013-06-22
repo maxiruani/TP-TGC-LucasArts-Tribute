@@ -23,6 +23,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
         // angle_o = car.Body.Rotation.Y
         // angular_velocity_o = car.s_omega
         // size = car.Body.Scale
+         * 
+         * 
         public OrientedBoundingBox(Vector3 position_wc_o, Vector3 velocity_wc_o, float angle_o, float angular_velocity_o, Vector3 size)
             : base(position_wc_o, velocity_wc_o, size.length())
         {
