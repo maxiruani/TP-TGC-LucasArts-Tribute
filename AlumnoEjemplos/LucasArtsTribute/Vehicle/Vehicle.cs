@@ -302,7 +302,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         StreamWriter sw;
 
-        public Vehicle(String path)
+        public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader)
         {
             //sw = new StreamWriter("D:\\TGC-Logs\\log.txt");
             //sw.WriteLine("Instance Car");
@@ -314,7 +314,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 make = null;
 
             ResetVehicle();		// Inicializo el vehiculo
-            SetupVehicle();	    // Seteo el vehiculo
+            SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	// Inicializo todas las variables
 
             this.velocimetro = new Velocimetro();
@@ -399,10 +399,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             return true;
         }
 
-        private void SetupVehicle()
+        private void SetupVehicle(Vector3 initialPosition, TgcSceneLoader loader)
         {
             // Cargo el mesh del cuerpo del vehiculo
-            TgcSceneLoader loader = new TgcSceneLoader();
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + make.bodyObj);
             body = scene.Meshes[0];
 
@@ -424,7 +423,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             v_blwSPos = new Vector3(body.Position.X + make.bl.X, body.Position.Y + make.bl.Y, body.Position.Z + make.bl.Z); // Trasera Izquierda
             v_brwSPos = new Vector3(body.Position.X + make.br.X, body.Position.Y + make.br.Y, body.Position.Z + make.br.Z); // Trasera Derecha
 
-            body.Position = new Vector3(5, 0, 5);       // Posicion inicial
+            body.Position = initialPosition;       // Posicion inicial
             this.TransformWheelPos();                   // Trasnformo las posiciones de las ruedas a las coordenadas del cuerpo del vehiculo
 
             // Seteo el tamaño del vehiculo y de las rueadas

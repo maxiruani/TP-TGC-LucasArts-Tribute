@@ -14,13 +14,15 @@ using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
-    internal class CarReflection
+    public class CarReflection
     {
         public CarReflection(Vehicle car)
         {
-            this._car = car;
+            _car = car;
             effect = TgcShaders.loadEffect(GuiController.Instance.ExamplesDir + "Media\\Shaders\\BumpMapping.fx");
-            ConfigReflection();
+            if (!isConfigInitialize)
+                ConfigReflection();
+            isConfigInitialize = true;
         }
         public void Render()
         {
@@ -70,6 +72,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         }
 
 
+        private static bool isConfigInitialize;
         private Vehicle _car;
         private Effect effect;
     }

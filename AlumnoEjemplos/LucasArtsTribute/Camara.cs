@@ -12,10 +12,13 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     public class Camara : TgcViewer.Utils.Input.TgcCamera
     {
-        public Camara()
+        public Camara(Vector3 initialPosition)
         {
+            //defaultCamara = initialPosition;
+           // defaultCamara.Y += 150;
+            //defaultCamara.Z -= 500;
             resetValues();
-            //GuiController.Instance.CurrentCamera = this;
+           // GuiController.Instance.CurrentCamera = this;
             camaras = new Queue<Vector3>();
             camaras.Enqueue(nearCamara);
             camaras.Enqueue(farCamara);
@@ -51,7 +54,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public void updateCamera()
         {
-            if (!enable)
+            if (!Enable)
             {
                 return;
             }
@@ -67,7 +70,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public void updateViewMatrix(Device d3dDevice)
         {
-            if (!enable)
+            if (!Enable)
             {
                 return;
             }
@@ -124,7 +127,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public static float DEFAULT_SPEED = 10.0f;
 
-        bool enable = true;
         public bool Enable { get; set; }
 
         float speed;
@@ -141,7 +143,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public Vector3 ActualCamara { get; internal set; }
         private List<Vector3> camaraVectors;
-        Vector3 defaultCamara = new Vector3(0, 150, -500);
+        Vector3 defaultCamara = new Vector3(0, 150, -700);
         Vector3 farCamara = new Vector3(0, 250, -800);
         Vector3 nearCamara = new Vector3(0, 10, -35);
 

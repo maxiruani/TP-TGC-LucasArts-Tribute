@@ -91,7 +91,8 @@
     <Compile Include="LucasArtsTribute\Car\BasicCar.cs" />
     <Compile Include="LucasArtsTribute\Car\Model.cs" />
     <Compile Include="LucasArtsTribute\Car\FirstCar.cs" />
-    <Compile Include="LucasArtsTribute\Player.cs" />
+    <Compile Include="LucasArtsTribute\Players\Multiplayer.cs" />
+    <Compile Include="LucasArtsTribute\Players\Player.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\CarReflection.cs" />
     <Compile Include="LucasArtsTribute\Car\CorvetteCar.cs" />
     <Compile Include="LucasArtsTribute\Car\Stats.cs" />

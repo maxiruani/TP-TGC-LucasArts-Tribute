@@ -21,7 +21,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
     /// </summary>
     public class LucasArtsTribute : TgcExample
     {
-        private CarReflection _carReflection;
         private List<Obstacle> _obstacles;
         private int _originalHeight;
         private int _originalWidth;
@@ -67,8 +66,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             //GuiController.Instance: acceso principal a todas las herramientas del Framework
             Device d3dDevice = GuiController.Instance.D3dDevice;
-            _originalWidth = d3dDevice.Viewport.Width;
-            _originalHeight = d3dDevice.Viewport.Height;
             //Crear piso
             TgcTexture pisoTexture = TgcTexture.createTexture(d3dDevice,
                                                               GuiController.Instance.ExamplesMediaDir +
@@ -86,7 +83,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             _players = new List<Player>();
             
-            SetCarParameters(1);
+            SetCarParameters(2);
 
             //Ejecutar en loop los sonidos
             foreach (Tgc3dSound s in sonidos)
@@ -97,23 +94,20 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         private void SetCarParameters(int playersCount)
         {
-            for (int i = 0; i < playersCount; i++)
+            if(playersCount==1)
             {
                 String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                Player player = new Player(piso, config, "Player" + i);
+                Player player = new Player(piso, config, new Vector3(5,0,5)); //Envío la superficie, la configuración y la posicion inicial
                 _players.Add(player);
+            }
+            else if (playersCount == 2)
+            {
+                String config1 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
+                String config2 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\TT\\TT.txt";
+                _players = Multiplayer.CreateMultiplayer(piso, config1, config2);
             }
             // GuiController.Instance.CurrentCamera = cam;
 
-            /*
-             * Se configura el reflejo sobre el auto. (CarReflection)
-             * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
-            */
-            //Reflejo en el auto
-            /*_carReflection = new CarReflection(car);
-            _carReflection.Render();
-            //Crear caja para indicar ubicacion de la luz
-            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);*/
         }
 
 
@@ -131,110 +125,18 @@ namespace AlumnoEjemplos.LucasArtsTribute
             // Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
             if (_players.Count == 2)
             {
-                LeftViewPort(elapsedTime, d3dDevice);
-                RightViewPort(elapsedTime, d3dDevice);
+                Multiplayer.RenderAll(_players);
             }
             if (_players.Count == 1)
             {
+                _players[0].DoPhysics(elapsedTime);
+                //_players[0].Cam.Enable = true;
                 _players[0].RenderPlayer(elapsedTime);
             }
-            // car.Instrumental.GetValues().ForEach(item => item.render());
         }
 
 
 
-        private void RightViewPort(float elapsedTime, Device d3dDevice)
-        {
-            d3dDevice.EndScene();
-            // Set up view-port properties
-            var rightViewPort = new Viewport();
-            rightViewPort.X = 0;
-            rightViewPort.Y = _originalHeight;
-            rightViewPort.Width = _originalWidth;
-            rightViewPort.Height = _originalHeight/2;
-            rightViewPort.MinZ = 0.0f;
-            rightViewPort.MaxZ = 1.0f;
-
-            d3dDevice.Viewport = rightViewPort;
-
-            // Now we can clear just view-port's portion of the buffer to green...
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer,
-                            Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
-
-            d3dDevice.BeginScene();
-        }
-
-        private void LeftViewPort(float elapsedTime, Device d3dDevice)
-        {
-            d3dDevice.EndScene();
-            var leftViewPort = new Viewport();
-            leftViewPort.X = 0;
-            leftViewPort.Y = 0;
-            leftViewPort.Width = _originalWidth;
-            leftViewPort.Height = _originalHeight/2;
-            leftViewPort.MinZ = 0.0f;
-            leftViewPort.MaxZ = 1.0f;
-
-            d3dDevice.Viewport = leftViewPort;
-            // Now we can clear just view-port's portion of the buffer to green...
-            d3dDevice.Clear(ClearFlags.Target | ClearFlags.ZBuffer,
-                            Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
-            d3dDevice.BeginScene();
-            TgcD3dInput input = GuiController.Instance.D3dInput;
-
-            // ProcessInput(input);
-
-            //Cambiar camara
-            if (input.keyDown(Key.C))
-            {
-                cam.ChangeCamara();
-            }
-
-            float delta_t = elapsedTime*5;
-
-            // car.DoPhysics(delta_t);
-
-            car.ControlVehicle(input, delta_t);
-
-            // Render piso
-            piso.render();
-
-            LightAndReflection();
-
-            car.Render();
-            //LoadCamara(false);
-
-            // Render obstaculos
-            /*
-            Vector3 lastPos = car.Mesh.Position;
-            
-            Vector lastPos2 = car.position_wc;
-            bool collitionTrue;
-            
-            foreach (Obstacle obstacle in _obstacles)
-            {
-                obstacle.Render();
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(obstacle.ObstacleBox.BoundingBox, car.Mesh.BoundingBox);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    Vector3 collisionZone = TgcCollisionUtils.closestPointAABB(car.Mesh.Position, obstacle.ObstacleBox.BoundingBox);
-                    car.Mesh.Position = lastPos;
-                    car.Position_wc = lastPos2;
-                    car.CrashWithObject();
-                    break;
-                }
-            }
-            */
-        }
-
-        private void LightAndReflection()
-        {
-//lightBox representa a la fuente de luz. Habría que colocarlo en algún angulo superior. Tal vez no sería necesario mostrarlo.
-            var lightPosition = (Vector3) GuiController.Instance.Modifiers["LightPosition"];
-            lightBox.Position = lightPosition;
-            lightBox.render();
-            _carReflection.Render();
-        }
 
         private void CheckCollisionPos()
         {
