@@ -118,8 +118,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             var leftViewPort = new Viewport();
             leftViewPort.X = 0;
             leftViewPort.Y = 0;
-            leftViewPort.Width = _originalWidth / 2;
-            leftViewPort.Height = _originalHeight;
+            leftViewPort.Width = _originalWidth;
+            leftViewPort.Height = _originalHeight / 2;
             leftViewPort.MinZ = 0.0f;
             leftViewPort.MaxZ = 1.0f;
             return leftViewPort;
@@ -129,10 +129,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private static Viewport RightViewPortCreate()
         {
             var rightViewPort = new Viewport();
-            rightViewPort.X = _originalWidth / 2;
-            rightViewPort.Y = 0;
-            rightViewPort.Width = _originalWidth / 2;
-            rightViewPort.Height = _originalHeight;
+            rightViewPort.X = 0;
+            rightViewPort.Y = _originalHeight / 2;
+            rightViewPort.Width = _originalWidth;
+            rightViewPort.Height = _originalHeight / 2;
             rightViewPort.MinZ = 0.0f;
             rightViewPort.MaxZ = 1.0f;
             return rightViewPort;

@@ -307,11 +307,10 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         private Velocimetro velocimetro;
 
-        StreamWriter sw;
+        static StreamWriter sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader)
         {
-            sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
             sw.WriteLine("Instance Car");
 
             // Seteo las propiedades del auto que se obtuvieron del archivo de configuracion.
