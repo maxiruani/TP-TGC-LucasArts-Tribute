@@ -18,7 +18,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
            // defaultCamara.Y += 150;
             //defaultCamara.Z -= 500;
             resetValues();
-           // GuiController.Instance.CurrentCamera = this;
             camaras = new Queue<Vector3>();
             camaras.Enqueue(nearCamara);
             camaras.Enqueue(farCamara);

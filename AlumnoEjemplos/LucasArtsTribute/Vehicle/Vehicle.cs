@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using AlumnoEjemplos.LucasArtsTribute.Players;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
@@ -305,25 +306,26 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public float delta_t;                           // Elapsed time
 
-        private Velocimetro velocimetro;
+        private IUserControls _userControls;
+        private Velocimetro _velocimetro;
 
         static StreamWriter sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
 
-        public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader)
+        public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
         {
             sw.WriteLine("Instance Car");
-
             // Seteo las propiedades del auto que se obtuvieron del archivo de configuracion.
             bool isOk = SetConfigData(path);
 
             if (!isOk)
                 make = null;
 
+            _userControls = userControls;
             ResetVehicle();		// Inicializo el vehiculo
             SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	// Inicializo todas las variables
 
-            this.velocimetro = new Velocimetro();
+            this._velocimetro = new Velocimetro();
         }
 
         private bool SetConfigData(String path)
@@ -926,7 +928,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             /*
              * Pedal de aceleracion. Se incrementa gradualmente de 0% a 100%
              */
-            if (input.keyDown(Key.W))
+            if (input.keyDown(_userControls.Acelerate()))
             {
                 breaking = false;			// No esta frenando
                 freeMoving = false;			// No esta en libre movimiento
@@ -950,7 +952,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             /*
              * Pedal de freno. Se incrementa gradualmente de 0% a 100%
              */
-            if (input.keyDown(Key.S))
+            if (input.keyDown(_userControls.Brake()))
             {
                 breaking = true;			// Se esta frenando
 
@@ -984,7 +986,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
              */
 
             // Giro hacia la derecha
-            if (input.keyDown(Key.D)) 
+            if (input.keyDown(_userControls.Right())) 
                 wAng += delta_t * 1.0f;
 
             // 28 grados (0.4888 radianes) en sentido horario
@@ -992,7 +994,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 wAng = 0.4888f;	
 
             // Giro hacia la izquierda
-            if (input.keyDown(Key.A)) 
+            if (input.keyDown(_userControls.Left())) 
                 wAng -= delta_t * 1.0f;
             
             // 28 grados(0.4888 radianes) en sentido anti horario
@@ -1000,7 +1002,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 wAng = -0.4888f;	
 
             // Estabilizar el volante de vuelta al origen
-            if ((!input.keyDown(Key.D)) && (!input.keyDown(Key.A)))
+            if ((!input.keyDown(_userControls.Right())) && (!input.keyDown(_userControls.Left())))
             {
                 if (wAng > 0.0f) 
                 {
@@ -1024,7 +1026,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             // Aumento o disminucion de cambio
             s_ogear = s_gear; // Guardo el ultimo cambio utilizado
 
-            if (input.keyDown(Key.Up)) 
+            if (input.keyDown(_userControls.GearUp())) 
             { 
                 if (gKey) 
                 { 
@@ -1036,7 +1038,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 } 
             }
 
-            if (input.keyDown(Key.Down)) 
+            if (input.keyDown(_userControls.GearDown())) 
             { 
                 if (gKey) 
                 { 
@@ -1047,7 +1049,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
                 } 
             }
 
-            if ((!input.keyDown(Key.Up)) && (!input.keyDown(Key.Down)))
+            if ((!input.keyDown(_userControls.GearUp())) && (!input.keyDown(_userControls.GearDown())))
             { 
                 gKey = true; 
             }
@@ -1127,7 +1129,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             engine.Frequency = freq;
 
 			// Sonido de la bocina
-            if (input.keyDown(Key.H) && (!horn.Playing))
+            if (input.keyDown(_userControls.Horn()) && (!horn.Playing))
                 horn.Play();
 
 			// Sonido de frenado
@@ -1491,14 +1493,14 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             brw.render();
 
             // Actualizar velocimetro
-            velocimetro.setVelocidad(v_velocity.Length(), s_rpm);
-            velocimetro.setCambio(s_gear);
-            velocimetro.render();
+            _velocimetro.setVelocidad(v_velocity.Length(), s_rpm);
+            _velocimetro.setCambio(s_gear);
+            _velocimetro.render();
         }
 
         public void dispose()
         {
-            velocimetro.dispose();
+            _velocimetro.dispose();
         }
 
 

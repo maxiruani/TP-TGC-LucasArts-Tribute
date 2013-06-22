@@ -93,6 +93,7 @@
     <Compile Include="LucasArtsTribute\Car\FirstCar.cs" />
     <Compile Include="LucasArtsTribute\Players\Multiplayer.cs" />
     <Compile Include="LucasArtsTribute\Players\Player.cs" />
+    <Compile Include="LucasArtsTribute\Players\UserControls.cs" />
     <Compile Include="LucasArtsTribute\Sound\LATSound.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\CarReflection.cs" />
     <Compile Include="LucasArtsTribute\Car\CorvetteCar.cs" />

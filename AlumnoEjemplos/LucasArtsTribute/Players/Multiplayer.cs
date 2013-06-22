@@ -21,12 +21,12 @@ namespace AlumnoEjemplos.LucasArtsTribute
             List<Player> players = new List<Player>();
 
             Vector3 initialPosition = new Vector3(100, 0, 0);
-            Player player = new Player(piso, configurationCar1, initialPosition);
+            Player player = new Player(piso, configurationCar1, initialPosition, 1);
             players.Add(player);
             _rightViewPort = RightViewPortCreate();
 
             initialPosition = new Vector3(10, 0, 0);
-            player = new Player(piso, configurationCar2, initialPosition);
+            player = new Player(piso, configurationCar2, initialPosition, 2);
             players.Add(player);
             _leftViewPort = LeftViewPortCreate();
 

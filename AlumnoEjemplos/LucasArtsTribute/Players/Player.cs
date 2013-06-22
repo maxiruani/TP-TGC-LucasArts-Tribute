@@ -1,4 +1,5 @@
 ﻿using System;
+using AlumnoEjemplos.LucasArtsTribute.Players;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using Microsoft.DirectX.DirectInput;
@@ -11,9 +12,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     public class Player
     {
-        public Player(TgcBox piso, String carConfiguration, Vector3 initialPosition)
+        public Player(TgcBox piso, String carConfiguration, Vector3 initialPosition, int numberOfPlayer)
         {
-            Car = new Vehicle(carConfiguration, initialPosition, Loader);
+            Car = new Vehicle(carConfiguration, initialPosition, Loader, UserControlsFactory.Create(numberOfPlayer));
             Piso = piso;
             Cam = new Camara(initialPosition);
             Cam.SetCenterTargetUp(_camDelta, initialPosition, new Vector3(0, 100, 0), true); 

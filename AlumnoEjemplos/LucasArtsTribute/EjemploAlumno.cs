@@ -97,7 +97,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             if(playersCount==1)
             {
                 String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                Player player = new Player(piso, config, new Vector3(5,0,5)); //Envío la superficie, la configuración y la posicion inicial
+                Player player = new Player(piso, config, new Vector3(5,0,5), 1); //Envío la superficie, la configuración y la posicion inicial
                 _players.Add(player);
             }
             else if (playersCount == 2)
