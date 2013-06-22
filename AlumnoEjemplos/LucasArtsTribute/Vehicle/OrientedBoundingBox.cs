@@ -10,14 +10,19 @@ using TgcViewer.Utils.TgcSceneLoader;
 namespace AlumnoEjemplos.LucasArtsTribute
 {
     class OrientedBoundingBox
-    {/*
+    {
+        /*
         public Vector3 size; // Tamaño de la caja
         
         public  bool isBoundingBox()
         {
             return true;
         }
-
+        // position_wc_o = v_position
+        // velocity_wc_o = v_velocity
+        // angle_o = car.Body.Rotation.Y
+        // angular_velocity_o = car.s_omega
+        // size = car.Body.Scale
         public OrientedBoundingBox(Vector3 position_wc_o, Vector3 velocity_wc_o, float angle_o, float angular_velocity_o, Vector3 size)
             : base(position_wc_o, velocity_wc_o, size.length())
         {
@@ -138,4 +143,5 @@ namespace AlumnoEjemplos.LucasArtsTribute
         }
     */
     }
+    
 }

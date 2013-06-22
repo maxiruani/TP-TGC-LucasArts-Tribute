@@ -53,7 +53,10 @@ engine[4].rpm:  6000.0
 engine[4].trq:  190.00
 engine[5].rpm:  7000.0
 engine[5].trq:  160.00
-body.mesh:		LucasArtsTribute\Cars\MC\Meshes\MC_body.xml
+body.mesh:	LucasArtsTribute\Cars\MC\Meshes\MC_body.xml
 body.texture:	LucasArtsTribute\Cars\MC\Meshes\Textures\MC_body.jpg
-tyre.mesh:		LucasArtsTribute\Cars\MC\Meshes\MC_tyre.xml
+tyre.mesh:	LucasArtsTribute\Cars\MC\Meshes\MC_tyre.xml
 tyre.texture:	LucasArtsTribute\Cars\MC\Meshes\Textures\MC_tyre.jpg
+engineSnd:	LucasArtsTribute\Cars\MC\Sound\MC_engine.wav
+hornSnd:	LucasArtsTribute\Cars\MC\Sound\MC_horn.wav
+brakeSnd:	LucasArtsTribute\Cars\MC\Sound\MC_brake.wav

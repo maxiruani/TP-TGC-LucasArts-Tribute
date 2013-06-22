@@ -57,3 +57,6 @@ body.mesh:	LucasArtsTribute\Cars\TT\Meshes\TT_body.xml
 body.texture:	LucasArtsTribute\Cars\TT\Meshes\Textures\TT_body.jpg
 tyre.mesh:	LucasArtsTribute\Cars\TT\Meshes\TT_tyre.xml
 tyre.texture:	LucasArtsTribute\Cars\TT\Meshes\Textures\TT_tyre.jpg
+engineSnd:	LucasArtsTribute\Cars\TT\Sound\TT_engine.wav
+hornSnd:	LucasArtsTribute\Cars\TT\Sound\TT_horn.wav
+brakeSnd:	LucasArtsTribute\Cars\TT\Sound\TT_brake.wav

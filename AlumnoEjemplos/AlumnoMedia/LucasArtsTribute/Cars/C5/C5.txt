@@ -53,7 +53,10 @@ engine[4].rpm:  5000.0
 engine[4].trq:  460.00
 engine[5].rpm:  6000.0
 engine[5].trq:  400.00
-body.mesh:		LucasArtsTribute\Cars\C5\Meshes\C5_body.xml
+body.mesh:	LucasArtsTribute\Cars\C5\Meshes\C5_body.xml
 body.texture:	LucasArtsTribute\Cars\C5\Meshes\Textures\C5_body.jpg
-tyre.mesh:		LucasArtsTribute\Cars\C5\Meshes\C5_tyre.xml
+tyre.mesh:	LucasArtsTribute\Cars\C5\Meshes\C5_tyre.xml
 tyre.texture:	LucasArtsTribute\Cars\C5\Meshes\Textures\C5_tyre.jpg
+engineSnd:	LucasArtsTribute\Cars\C5\Sound\C5_engine.wav
+hornSnd:	LucasArtsTribute\Cars\C5\Sound\C5_horn.wav
+brakeSnd:	LucasArtsTribute\Cars\C5\Sound\C5_brake.wav
