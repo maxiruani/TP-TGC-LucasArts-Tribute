@@ -658,35 +658,10 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             // Calculo las coordenadas del vehiculo
             CalcVehicleCoord();
 
-            // set x and z positions
-            //body.Position = new Vector3(v_position.X, make.groundHeight, v_position.Z);
             body.Position = new Vector3(v_position.X, body.Position.Y, v_position.Z);
 
-            /*
-            // calculate wheel position ground heights (delayed values)
-            float flwH = land->getElandHeight(v_flwRPos.x, v_flwRPos.z, 0);
-            float frwH = land->getElandHeight(v_frwRPos.x, v_frwRPos.z, 0);
-            float blwH = land->getElandHeight(v_blwRPos.x, v_blwRPos.z, 0);
-            float brwH = land->getElandHeight(v_brwRPos.x, v_brwRPos.z, 0);
-
-            body.Position.Y = make.groundHeight; // set y position
-
-            // calculate position values
-            float fH = (flwH + frwH) / 2.0f;
-            float bH = (blwH + brwH) / 2.0f;
-            float lH = (flwH + blwH) / 2.0f;
-            float rH = (frwH + brwH) / 2.0f;
-
-            // calculate and set vehicle curved orientation angles
-            float xAng = asin((bH - fH) / s_dist(fPos, bPos));
-            float zAng = asin((rH - lH) / s_dist(rPos, lPos));
-            */
-
-            s_bodyCurveX = MathHelper.CurveValue(0f, s_bodyCurveX, 1.001f, delta_t);
-            s_bodyCurveZ = MathHelper.CurveValue(0f, s_bodyCurveZ, 1.001f, delta_t);
-
-            body.SetRotationX(s_bodyCurveX - nxWeightAng);
-            body.SetRotationZ(s_bodyCurveZ - nzWeightAng);
+            body.SetRotationX(-nxWeightAng);
+            body.SetRotationZ(-nzWeightAng);
         }
 
         /*
@@ -889,7 +864,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             {
                 if (rpm == make.engine[x].rpm)
                 {
-                    return make.engine[x].torque; // exact rpm value
+                    return make.engine[x].torque; // Valor RPM exacto
                 }
                 else
                 {
@@ -927,19 +902,19 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			{
 				if (brk == true)
 				{
-					brkSpd = s_speed;														// calculate speed at brake point
+					brkSpd = s_speed;														// Calcular la velocidad al momento de frenar
 
 					float vol = 80.0f + ((brkSpd / 70.0f) * 20.0f); 
-                    brake.Volume = (int) vol;		                                        // derive volume from brake speed
+                    brake.Volume = (int) vol;		                                        // Derivar el volumen desde la velocidad de frenado
 
 					float frq = 8000.0f + ((brkSpd / 70.0f) * 3000.0f); 
-                    brake.Frequency = (int) frq;	                                        // derive frquency from brake speed
+                    brake.Frequency = (int) frq;	                                        // Derivar la frecuencia desde la velocidad de frenado
 					
-                    brake.Play();															// play brake sound
+                    brake.Play();															// Comenzar el sonido
 					brk = false;
 				}
 				if ((s_speed == 0.0f) && (brake.Playing)) 
-                    brake.Stop();						                                    // stop sound when vehicle stops
+                    brake.Stop();						                                    // Pausarlo cuando el vehiculo frena
 			}
             else
             {
@@ -1046,7 +1021,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			        s_bwAngVelocity = s_fwAngVelocity;
 	        }
 
-
             // --------------------------------------------------------------------------------------
             // --- Calcular la fuerza longitudinar que actua sobre el vehiculo (fuerza principal) ---
             // --------------------------------------------------------------------------------------
@@ -1150,7 +1124,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             // Calcular el sideslip angle del cuerpo
 	        if(bDir != vDir)
             {
-                s_beta = FastMath.Acos(Vector3.Dot(bDir, vDir) / (bDir.Length() * vDir.Length()));
+                float aux = Vector3.Dot(bDir, vDir) / (bDir.Length() * vDir.Length());
+
+                if (aux > 1) aux = 1;
+
+                s_beta = FastMath.Acos(aux);
                 
                 if(wAng < 0.0f) 
                     s_beta = -s_beta;
@@ -1161,7 +1139,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             // Calcular el sideslip angle de las ruedas frontales
 	        if(flwDir != fwvDir)
             {
-                s_frontAlpha = FastMath.Acos(Vector3.Dot(flwDir, fwvDir) / (flwDir.Length() * fwvDir.Length()));
+                float aux = Vector3.Dot(flwDir, fwvDir) / (flwDir.Length() * fwvDir.Length());
+
+                if (aux > 1) aux = 1;
+
+                s_frontAlpha = FastMath.Acos(aux);
 
                 if(wAng < 0.0f) 
                     s_frontAlpha = -s_frontAlpha;
@@ -1184,10 +1166,12 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             // Calcular el radio de curvatura a altas velocidades
 	        s_hsRadius = (make.mass * FastMath.Pow2(s_speed)) / s_centripetalForce;
 
-	        CalcAngVel();		// Calcular la velocidad angular a baja velocidad
+	        CalcAngVel();
 
             ControlSound(input, elapsed_time);
+
             //PrintDebugInfo();
+
             _obb.Move();
 
         }
@@ -1246,7 +1230,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			s_vehicleWeight				= MathHelper.g * make.mass;
 			s_wheelWeight				= MathHelper.g * make.wheelMass;
 			s_omega						= 0.0f;
-			//s_omega2					= 0.0f;
 			s_inertia					= 0.0833f * make.mass * (FastMath.Pow2(make.bodyLength) + FastMath.Pow2(make.bodyWidth) + FastMath.Pow2(make.bodyHeight));
 
 			s_bodyCurveX				= 0.0f;
@@ -1255,7 +1238,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			s_flwCurveAng				= 0.0f;
 			s_frwCurveAng				= 0.0f;
 
-			// clear vector memories
+			// Inicializo los vectores
 			fwvDir = new Vector3();
 			flwDir = new Vector3();
 			frwDir = new Vector3();
@@ -1267,7 +1250,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public void Render()
         {
-            // Render the body and tyres
+            // Renderizo el cuerpo y las ruedas del vehiculo
             body.render();
             flw.render();
             frw.render();
@@ -1324,13 +1307,19 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             sw.WriteLine("brw weight: " + s_brwWeight);
             sw.WriteLine("max torque: " + s_maxTorque);
             sw.WriteLine("longitudinal: " + v_longitudinalForce.Length());
+
+            sw.WriteLine("v_flwSPos: " + v_flwSPos);
+            sw.WriteLine("v_frwSPos: " + v_frwSPos);
+            sw.WriteLine("v_blwSPos: " + v_blwSPos);
+            sw.WriteLine("v_brwSPos: " + v_brwSPos);
+
             sw.WriteLine("v_flwRPos: " + v_flwRPos);
             sw.WriteLine("v_frwRPos: " + v_frwRPos);
             sw.WriteLine("v_blwRPos: " + v_blwRPos);
             sw.WriteLine("v_brwRPos: " + v_brwRPos);
 
-            sw.WriteLine("flw.Rotation :" + flw.Rotation);
-            sw.WriteLine("frw.Rotation :" + frw.Rotation);
+            sw.WriteLine("body.Rotation: " + body.Rotation);
+            sw.WriteLine("body.Position: " + body.Position);
         }
 
     }
