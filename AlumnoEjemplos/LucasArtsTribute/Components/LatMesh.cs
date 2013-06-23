@@ -11,45 +11,15 @@ using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.LucasArtsTribute.Components
 {
-    public class LatMesh : TgcMesh
+    public class LATMesh : TgcMesh
     {
-
-        protected bool meshUpdated = true;
-
-        public bool MeshUpdated
-        {
-            get { return meshUpdated; }
-            set { meshUpdated = value; }
-        }
 
         public Vector3 TransformCoord(Vector3 src)
         {
-            if (!MeshUpdated)
-                updateMeshTransform();
+            Matrix transf = Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix.Translation(translation);
 
-            src.TransformCoordinate(transform);
+            src.TransformCoordinate(transf);
             return src;
-        }
-
-        public Vector3 Position
-        {
-            get { return translation; }
-            set
-            {
-                MeshUpdated = false;
-                translation = value;
-                updateBoundingBox();
-            }
-        }
-
-        public Vector3 Rotation
-        {
-            get { return rotation; }
-            set 
-            {
-                MeshUpdated = false;
-                rotation = value;
-            }
         }
 
         public void SetRotationX(float x)
@@ -66,15 +36,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.Components
         {
             rotation.Z = z;
         }
-        public Vector3 Scale
-        {
-            get { return scale; }
-            set
-            {
-                MeshUpdated = false;
-                scale = value;
-                updateBoundingBox();
-            }
-        }
+
     }
 }
