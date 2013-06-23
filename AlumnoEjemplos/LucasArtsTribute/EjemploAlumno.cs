@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using AlumnoEjemplos.LucasArtsTribute.Circuit;
+using AlumnoEjemplos.LucasArtsTribute.Sound;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
@@ -13,6 +14,7 @@ using TgcViewer.Utils.Sound;
 using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
+using TgcViewer.Utils._2D;
 using Device = Microsoft.DirectX.Direct3D.Device;
 
 namespace AlumnoEjemplos.LucasArtsTribute
@@ -36,7 +38,14 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private const int NumberOfPlayers = 2;
         private TgcSkyBox _skyBox;
         readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
-
+        
+#region Presentation Fields
+        private bool _showingPresentation = true;
+        private bool _presentationLoad = false;
+        private TgcText2d presentationText;
+        private TgcSprite presentationImage;
+        private Mp3 sound;
+#endregion
         /// <summary>
         ///     Categoría a la que pertenece el ejemplo.
         ///     Influye en donde se va a haber en el árbol de la derecha de la pantalla.
@@ -123,6 +132,14 @@ namespace AlumnoEjemplos.LucasArtsTribute
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
+            while (_showingPresentation && !GuiController.Instance.D3dInput.keyDown(Key.Space))
+            {
+                Presentation();
+                return;
+            }
+            sound.Stop();
+            _showingPresentation = false;
+            
             //Device de DirectX para renderizar
             Device d3dDevice = GuiController.Instance.D3dDevice;
             // Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
@@ -138,7 +155,35 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
         }
 
+        
 
+        private void Presentation()
+        {
+            if (_presentationLoad==false)
+            {
+                presentationImage = new TgcSprite();
+                presentationImage.Texture =
+                    TgcTexture.createTexture(GuiController.Instance.AlumnoEjemplosMediaDir +
+                                             "LucasArtsTribute\\Presentation\\AudiTT.jpg");
+                presentationImage.Position = new Vector2(0, 0);
+                presentationImage.Scaling = new Vector2(0.6f, 0.6f);
+                presentationText = new TgcText2d();
+                presentationText.Color = Color.OrangeRed;
+                presentationText.Text = "Presione espacio para comenzar.";
+                presentationText.Size = new Size(100, 20);
+                presentationText.Position = new Point(0, 0);
+                sound = new Mp3("LucasArtsTribute\\Presentation\\Daytona.mp3");
+                _presentationLoad = true;
+            }
+            GuiController.Instance.Drawer2D.beginDrawSprite();
+            presentationImage.render();
+            GuiController.Instance.Drawer2D.endDrawSprite();
+            presentationText.render();
+
+            if(!sound.IsPlaying())
+                sound.Play();
+            
+        }
 
 
         public void LoadScenario()
@@ -218,7 +263,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 obstacle.Dispose();
             }
 
-            car.body.dispose();
+            //car.body.dispose();
 
             foreach (Tgc3dSound sound in sonidos)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using TgcViewer;
 using TgcViewer.Utils.TgcGeometry;
@@ -11,8 +12,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     class OrientedBoundingBox
     {
-        /*
-        public Vector3 size; // Tamaño de la caja
         
         public  bool isBoundingBox()
         {
@@ -21,29 +20,35 @@ namespace AlumnoEjemplos.LucasArtsTribute
         // position_wc_o = v_position
         // velocity_wc_o = v_velocity
         // angle_o = car.Body.Rotation.Y
-        // angular_velocity_o = car.s_omega
+        // angularVelocity = car.s_omega
         // size = car.Body.Scale
-         * 
-         * 
-        public OrientedBoundingBox(Vector3 position_wc_o, Vector3 velocity_wc_o, float angle_o, float angular_velocity_o, Vector3 size)
-            : base(position_wc_o, velocity_wc_o, size.length())
+        private Vector3 _positionWc;
+        private Vector3 _velocityWc;
+        private float _angle;
+        private float _angularVelocity;
+        private Vector3 _size;
+        private Vehicle _car;
+
+        public OrientedBoundingBox(Vehicle car)
         {
-            this.size = size;
-            _car.
-            this.angle = angle_o;
-            this.angular_velocity = angular_velocity_o;
+            _car = car;
+            _positionWc = car.VPosition;
+            _velocityWc = car.VVelocity;
+            _angle = car.body.Rotation.Y;
+            _angularVelocity = car.SOmega;
+            _size = car.body.Scale;
         }
 
-        public OrientedBoundingBox move(float delta_t)
+        public OrientedBoundingBox Move()
         {
-            OrientedBoundingBox OBB = new OrientedBoundingBox(this.position_wc, this.velocity_wc, this.angle, this.angular_velocity, this.size);
-            
-            OBB.position_wc = this.position_wc + this.velocity_wc * delta_t;
-            OBB.angle = this.angle + this.angular_velocity * delta_t;
-            
-            return OBB;
+            _positionWc = _car.VPosition;
+            _velocityWc = _car.VVelocity;
+            _angle = _car.body.Rotation.Y;
+            _angularVelocity = _car.SOmega;
+            _size = _car.body.Scale;
+            return this;
         }
-
+        /*
         private delegate Contact Distance(float t);
 
         private Contact iterativeSwapTest(Distance getDistance, Accelerationable obstaculo, Contact contact, float delta_t)
@@ -88,7 +93,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
                 if ((bool)GuiController.Instance.Modifiers["Predicción de choque"])
                 {
-                    this.move(t).render(System.Drawing.Color.LightBlue);
+                    this.Move(t).render(System.Drawing.Color.LightBlue);
                 }
 
                 //obstaculo.move(t).render(System.Drawing.Color.LightGreen);
@@ -108,42 +113,41 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public  Contact swapTest(BoundingSphere obstaculo, float delta_t)
         {
-            return this.iterativeSwapTest(delegate(float t) { return this.move(t).getDistance(obstaculo.move(t)); }, obstaculo, base.swapTest(obstaculo, delta_t), delta_t);
+            return this.iterativeSwapTest(delegate(float t) { return this.Move(t).getDistance(obstaculo.move(t)); }, obstaculo, base.swapTest(obstaculo, delta_t), delta_t);
         }
 
         public  Contact swapTest(OrientedBoundingBox obstaculo, float delta_t)
         {
-            return this.iterativeSwapTest(delegate(float t) { return this.move(t).getDistance(obstaculo.move(t)); }, obstaculo, base.swapTest((BoundingSphere)obstaculo, delta_t), delta_t);
+            return this.iterativeSwapTest(delegate(float t) { return this.Move(t).getDistance(obstaculo.Move(t)); }, obstaculo, base.swapTest((BoundingSphere)obstaculo, delta_t), delta_t);
         }
 
         public  Contact swapTest(InfiniteWall obstaculo, float delta_t)
         {
-            return this.iterativeSwapTest(delegate(float t) { return this.move(t).getDistance(obstaculo); }, obstaculo, base.swapTest(obstaculo, delta_t), delta_t);
-        }
+            return this.iterativeSwapTest(delegate(float t) { return this.Move(t).getDistance(obstaculo); }, obstaculo, base.swapTest(obstaculo, delta_t), delta_t);
+        }*/
 
         // RENDERIZABLE
 
-        public  void render()
+        public  void Render()
         {
-            //base.render();
-
-            TgcTexture textura = TgcTexture.createTexture(GuiController.Instance.D3dDevice, GuiController.Instance.AlumnoEjemplosMediaDir + "SeniorCoders\\paredMuyRugosa.jpg");
-            TgcBox caja = TgcBox.fromExtremes((-this.size).toDirectXVector3(), this.size.toDirectXVector3(), textura);
-            caja.Position = this.position_wc.toDirectXVector3();
-            caja.Rotation = new Vector33(0, FastMath.PI + this.angle, 0);
+            //TgcTexture textura = TgcTexture.createTexture(GuiController.Instance.D3dDevice, GuiController.Instance.AlumnoEjemplosMediaDir + "SeniorCoders\\paredMuyRugosa.jpg");
+            TgcBox caja = TgcBox.fromExtremes((-this._size), this._size);//, textura);
+            caja.Position = this._positionWc;
+            caja.Rotation = new Vector3(0, FastMath.PI + _angle, 0);
             caja.render();
         }
 
-        public  void render(System.Drawing.Color color)
+        public  void Render(System.Drawing.Color color)
         {
             //base.render(color);
 
-            TgcBox caja = TgcBox.fromExtremes((-this.size).toDirectXVector3(), this.size.toDirectXVector3(), color);
-            caja.Position = this.position_wc.toDirectXVector3();
-            caja.Rotation = new Vector33(0, FastMath.PI + this.angle, 0);
+            TgcBox caja = TgcBox.fromSize(new Vector3(0,0,0), new Vector3((float) 0.1, (float) 0.1, (float) 0.1), color); //TgcBox.fromExtremes((-this._size), this._size, color);
+            //caja.Position = this._positionWc;
+            //caja.Rotation = new Vector3(0, FastMath.PI + _angle, 0);
+            caja.Enabled = true;
             caja.render();
         }
-    */
+    
     }
     
 }

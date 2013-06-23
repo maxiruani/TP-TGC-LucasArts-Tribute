@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.IO;
@@ -175,6 +176,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public TgcMesh blw;				// pointer to car bakc left wheel
         public TgcMesh brw;				// pointer to car back right wheel
 
+        //OBB
+        private OrientedBoundingBox _obb;
+
         // vehicle sounds
         LATSound engine;				// Sonido del motor
         LATSound brake;					// Sonido de los frenos
@@ -309,6 +313,10 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         private IUserControls _userControls;
         private Velocimetro _velocimetro;
 
+        public Vector3 VPosition { get { return v_position; } }
+        public Vector3 VVelocity { get { return v_velocity; } }
+        public float SOmega { get { return s_omega; } }
+
         static StreamWriter sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
@@ -324,6 +332,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             ResetVehicle();		// Inicializo el vehiculo
             SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	// Inicializo todas las variables
+            _obb = new OrientedBoundingBox(this);
 
             this._velocimetro = new Velocimetro();
         }
@@ -1398,16 +1407,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
             ControlSound(input, elapsed_time);
             //PrintDebugInfo();
-            /*
-	        printDebugInfo();	// print debug information
-	        controlHUD();		// control the vehicle HUD
-	        controlSounds();	// control the vehicle sounds
+            _obb.Move();
 
-	        // controls the vehicle camera
-	        if(camTyp==0) cam.curveFollow(*body,*land,20.0f,10.0f,5.0f,1.003f,3.0f);	// 3rd person camera
-	        if(camTyp==1) cam.orbit(*body,15.0f,7.0f,0.0f,0.001f);						// orbital camera
-	        if(camTyp==2) labtec.controlCamera(70.0f,100.0f);							// freelook camera
-            */
         }
 
         public void ResetVariables()
@@ -1491,6 +1492,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             frw.render();
             blw.render();
             brw.render();
+
+            _obb.Render(Color.Red);
 
             // Actualizar velocimetro
             _velocimetro.setVelocidad(v_velocity.Length(), s_rpm);
