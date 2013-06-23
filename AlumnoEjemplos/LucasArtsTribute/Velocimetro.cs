@@ -8,8 +8,8 @@ using TgcViewer.Utils._2D;
 using TgcViewer.Utils.TgcSceneLoader;
 using System.Drawing;
 using TgcViewer.Utils.TgcGeometry;
-
 using Microsoft.DirectX.Direct3D;
+using AlumnoEjemplos.LucasArtsTribute.Utils;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -34,7 +34,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             //Setea la bandera de aceleracion por default en false
             acelera = false;
-            rotacionTaquimetro = 0f;
+            rotacionTaquimetro = - MathHelper.PI / 6f;
             rotacionVelocimetro = 0f;
             
             //Crear Sprites
@@ -86,11 +86,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             textVelocity.changeFont(new System.Drawing.Font("TimesNewRoman", 14, FontStyle.Bold));
 
             agujaVelocidad.Rotation = Geometry.DegreeToRadian(velocidad * 270 / 180);
-            
-            if (rpm == 0)
-                rpm = 100;
 
-            agujaTacometro.Rotation = Geometry.DegreeToRadian(rpm * 270 / 180);
+            rotacionTaquimetro = MathHelper.CurveAngle(-(rpm / 6000.0f) * MathHelper.PI, rotacionTaquimetro, 1.01f, GuiController.Instance.ElapsedTime);
+            agujaTacometro.Rotation = -rotacionTaquimetro;
         }
 
         public void setCambio(int s_gear)

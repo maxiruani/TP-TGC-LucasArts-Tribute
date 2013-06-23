@@ -62,7 +62,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 Cam.ChangeCamara();
             }
 
-            float delta_t = elapsedTime * 5;
+            float delta_t = elapsedTime * 3;
 
             Car.ControlVehicle(input, delta_t);
         }
