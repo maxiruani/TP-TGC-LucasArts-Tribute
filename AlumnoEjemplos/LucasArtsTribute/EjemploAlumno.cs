@@ -24,7 +24,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     /// </summary>
     public class LucasArtsTribute : TgcExample
     {
-        private List<Obstacle> _obstacles;
+        private List<Checkpoints> _obstacles;
         private int _originalHeight;
         private int _originalWidth;
         public Camara cam;
@@ -35,7 +35,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
         private List<Player> _players;
-        private const int NumberOfPlayers = 2;
+        private const int NumberOfPlayers = 1;
         private TgcSkyBox _skyBox;
         readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
         
@@ -86,11 +86,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
             LoadSkyBox();
 
             //Cargar obstaculos y posicionarlos. Los obstáculos se crean con TgcBox en lugar de cargar un modelo.
-            _obstacles = new List<Obstacle>();
+            _obstacles = new List<Checkpoints>();
             sonidos = new List<Tgc3dSound>();
             Tgc3dSound sound;
 
-            Obstacle wheelBox = new Wheel(d3dDevice, new Vector3(-50, 0, -920), new Vector3(50, 50, 50));
+            Checkpoints wheelBox = new NosBottle(d3dDevice, new Vector3(0, -50, 0), new Vector3(5, 10, 5));
             //Obstaculo 1
             _obstacles.Add(wheelBox);
 
@@ -152,6 +152,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _players[0].DoPhysics(elapsedTime);
                 _players[0].RenderPlayer(elapsedTime);
                 _skyBox.render();
+                _obstacles.ForEach(item => item.Render());
             }
 
 
@@ -261,7 +262,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         public override void close()
         {
             scenario.dispose();
-            foreach (Obstacle obstacle in _obstacles)
+            foreach (Checkpoints obstacle in _obstacles)
             {
                 obstacle.Dispose();
             }

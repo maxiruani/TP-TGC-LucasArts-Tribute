@@ -10,9 +10,9 @@ using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.LucasArtsTribute.Circuit
 {
-    public class Obstacle
+    public class Checkpoints
     {
-        public Obstacle(Vector3 center, Vector3 size, TgcTexture texture)
+        public Checkpoints(Vector3 center, Vector3 size, TgcTexture texture)
         {
             _box = TgcBox.fromSize(center, size, texture);
         }
@@ -27,7 +27,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
         {
             get { return _box.Position; }
         }
-        public void Render()
+        public virtual void Render()
         {
             _box.render();
         }
@@ -39,13 +39,21 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
         }
     }
 
-    public class Wheel : Obstacle
+    public class NosBottle : Checkpoints
     {
-        public Wheel(Microsoft.DirectX.Direct3D.Device d3dDevice, Vector3 center, Vector3 size)
+        public NosBottle(Microsoft.DirectX.Direct3D.Device d3dDevice, Vector3 center, Vector3 size)
             : base(center, size, TgcTexture.createTexture(d3dDevice,
-                                     GuiController.Instance.ExamplesMediaDir + "Texturas\\Quake\\TexturePack3\\goo2.jpg"))
+                                     GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\NosBottle.jpg"))
         {
+            Obb = new OrientedBoundingBox(this.ObstacleBox.Position, this.ObstacleBox.Size);
         }
+
+        public override void Render()
+        {
+            this.ObstacleBox.render();
+            Obb.Render();
+        }
+        public OrientedBoundingBox Obb { get; internal set; }
 
     }
 }

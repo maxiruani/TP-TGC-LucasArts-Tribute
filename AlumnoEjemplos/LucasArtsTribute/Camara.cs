@@ -14,9 +14,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         public Camara(Vector3 initialPosition)
         {
-            //defaultCamara = initialPosition;
-           // defaultCamara.Y += 150;
-            //defaultCamara.Z -= 500;
             resetValues();
             camaras = new Queue<Vector3>();
             camaras.Enqueue(nearCamara);

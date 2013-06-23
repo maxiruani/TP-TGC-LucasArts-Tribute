@@ -103,7 +103,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //LightAndReflection();
             /*
             
-            foreach (Obstacle obstacle in _obstacles)
+            foreach (Checkpoints obstacle in _obstacles)
             {
                 obstacle.Render();
                 TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(obstacle.ObstacleBox.BoundingBox, car.Mesh.BoundingBox);

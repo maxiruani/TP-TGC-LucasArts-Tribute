@@ -68,7 +68,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.Players
         {
             return Key.A;
         }
-
         public Key Horn()
         {
             return Key.G;
