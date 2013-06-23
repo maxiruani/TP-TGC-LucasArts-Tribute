@@ -9,22 +9,22 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public static bool TestOBB_Vs_OBB(OrientedBoundingBox a, OrientedBoundingBox b)
         {
-            LineSegment2D[] segA = dameSegmentosEnXZ(dameVerticesEnXZ(a));
-            LineSegment2D[] segB = dameSegmentosEnXZ(dameVerticesEnXZ(b));
+            LineSegment2D[] segA = GetSegmentInXZ(GetVertexInXZ(a));
+            LineSegment2D[] segB = GetSegmentInXZ(GetVertexInXZ(b));
 
 
             for (int j = 0; j < 4; j++)
             {
                 for (int i = 0; i < 4; i++)
                 {
-                    if (segA[i].intersectaSegmento(segB[j]))
+                    if (segA[i].IntersectWithSegment(segB[j]))
                         return true;
                 }
             }
             return false;
         }
 
-        public static LineSegment2D[] dameSegmentosEnXZ(Vector2[] vert)
+        public static LineSegment2D[] GetSegmentInXZ(Vector2[] vert)
         {
             LineSegment2D[] seg = new LineSegment2D[4];
 
@@ -36,18 +36,18 @@ namespace AlumnoEjemplos.LucasArtsTribute
             return seg;
         }
 
-        public static Vector2[] dameVerticesEnXZ(OrientedBoundingBox a)
+        public static Vector2[] GetVertexInXZ(OrientedBoundingBox a)
         {
-            Vector3[] vertices3D = a.ComputeCorners();
+            Vector3[] vertex3D = a.ComputeCorners();
 
-            Vector2[] vertices2D = new Vector2[4];
+            Vector2[] vertex2D = new Vector2[4];
 
-            vertices2D[0] = new Vector2(vertices3D[1].X, vertices3D[1].Z);
-            vertices2D[1] = new Vector2(vertices3D[2].X, vertices3D[2].Z);
-            vertices2D[2] = new Vector2(vertices3D[6].X, vertices3D[6].Z);
-            vertices2D[3] = new Vector2(vertices3D[5].X, vertices3D[5].Z);
+            vertex2D[0] = new Vector2(vertex3D[1].X, vertex3D[1].Z);
+            vertex2D[1] = new Vector2(vertex3D[2].X, vertex3D[2].Z);
+            vertex2D[2] = new Vector2(vertex3D[6].X, vertex3D[6].Z);
+            vertex2D[3] = new Vector2(vertex3D[5].X, vertex3D[5].Z);
 
-            return vertices2D;
+            return vertex2D;
         }
 
     }
@@ -55,40 +55,35 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
     public class LineSegment2D
     {
-        Vector2 punto1;
-        Vector2 punto2;
-
+        Vector2 pointA;
+        Vector2 pointB;
 
         public LineSegment2D(Vector2 p1, Vector2 p2)
         {
-            punto1 = p1;
-            punto2 = p2;
+            pointA = p1;
+            pointB = p2;
         }
 
-
-
-
-        public bool intersectaSegmento(LineSegment2D segmento)
+        public bool IntersectWithSegment(LineSegment2D segmento)
         {
-            return intersectanSegmentos(punto1, punto2, segmento.punto1, segmento.punto2);
+            return AreSegmentIntersecting(pointA, pointB, segmento.pointA, segmento.pointB);
         }
 
 
-        public static bool isCounterClockWise(Vector2 punto1, Vector2 punto2, Vector2 punto3)
+        public static bool IsCounterClockWise(Vector2 punto1, Vector2 punto2, Vector2 punto3)
         {
             return (punto3.Y - punto1.Y) * (punto2.X - punto1.X) > (punto2.Y - punto1.Y) * (punto3.X - punto1.X);
         }
 
 
         //a y b definen los puntos del primer segmento de recta, c y d el del segundo segmento de recta
-        public static bool intersectanSegmentos(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
+        public static bool AreSegmentIntersecting(Vector2 a, Vector2 b, Vector2 c, Vector2 d)
         {
-            if (isCounterClockWise(a, c, d) == isCounterClockWise(b, c, d))
+            if (IsCounterClockWise(a, c, d) == IsCounterClockWise(b, c, d))
                 return false;
-            else if (isCounterClockWise(a, b, c) == isCounterClockWise(a, b, d))
+            if (IsCounterClockWise(a, b, c) == IsCounterClockWise(a, b, d))
                 return false;
-            else
-                return true;
+            return true;
         }
 
     }

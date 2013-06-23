@@ -14,6 +14,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         public Player(TgcBox scenario, String carConfiguration, Vector3 initialPosition, int numberOfPlayer)
         {
+            _playerNumber = numberOfPlayer;
             Car = new Vehicle(carConfiguration, initialPosition, Loader, UserControlsFactory.Create(numberOfPlayer));
             Piso = scenario;
             Cam = new Camara(initialPosition);
@@ -25,8 +26,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
              * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
              */
             //Reflejo en el auto
-            /*_carReflection = new CarReflection(Car);
-            _carReflection.Render();*/
+            _carReflection = new CarReflection(Car);
             /*//Crear caja para indicar ubicacion de la luz
             lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);*/
         }
@@ -78,11 +78,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         private void LightAndReflection()
         {
-            //lightBox representa a la fuente de luz. Habría que colocarlo en algún angulo superior. Tal vez no sería necesario mostrarlo.
-            //     var lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
-            //     lightBox.Position = lightPosition;
-            //     lightBox.render();
-           // _carReflection.Render();
+            if(_playerNumber==1)
+                _carReflection.Render();
         }
 
         private static TgcSceneLoader _loader;
@@ -101,6 +98,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
         public TgcBox Piso { get; internal set; }
         private readonly Vector3 _camDelta = new Vector3(0, 0, 0);
         private readonly CarReflection _carReflection;
+        private int _playerNumber;
+
     }
 
 }

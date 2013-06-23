@@ -47,7 +47,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             Vector3 lightPos = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
             Vector3 eyePosition = GuiController.Instance.FpsCamera.getPosition();
-
+            /*
+             * 
+             * 
+             */
             //Cargar variables shader de la luz
             _car.body.Effect.SetValue("lightColor", ColorValue.FromColor((Color)GuiController.Instance.Modifiers["lightColor"]));
             _car.body.Effect.SetValue("lightPosition", TgcParserUtils.vector3ToFloat4Array(lightPos));
