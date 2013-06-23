@@ -35,6 +35,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         // OBB
         private OrientedBoundingBox _obb;
+        public OrientedBoundingBox Obb
+        { get { return _obb; } }
 
         // Sonidos
         LATSound engine;				// Sonido del motor
@@ -170,7 +172,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public Vector3 VVelocity { get { return v_velocity; } }
         public float SOmega { get { return s_omega; } }
 
-        static StreamWriter sw = new StreamWriter("D:\\TGC-Logs\\log.txt");
+        static StreamWriter sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
         {
@@ -1272,7 +1274,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             blw.render();
             brw.render();
 
-            _obb.Render(Color.Red);
+            _obb.Render();
 
             // Actualizar velocimetro
             _velocimetro.setVelocidad(v_velocity.Length(), s_rpm);

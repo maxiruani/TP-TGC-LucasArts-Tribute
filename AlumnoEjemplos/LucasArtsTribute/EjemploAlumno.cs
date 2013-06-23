@@ -153,6 +153,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _players[0].RenderPlayer(elapsedTime);
                 _skyBox.render();
             }
+
+
+
         }
 
         

@@ -106,6 +106,7 @@
     <Compile Include="LucasArtsTribute\EjemploAlumno.cs" />
     <Compile Include="LucasArtsTribute\Car\Instrumental.cs" />
     <Compile Include="LucasArtsTribute\Utils\ConfigurationManager.cs" />
+    <Compile Include="LucasArtsTribute\Vehicle\Collision.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\OrientedBoundingBox.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\Vehicle.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\VehiculeProperties.cs" />
