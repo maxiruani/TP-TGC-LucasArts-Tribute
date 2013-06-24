@@ -16,6 +16,7 @@ using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 using TgcViewer.Utils._2D;
 using Device = Microsoft.DirectX.Direct3D.Device;
+using Font = System.Drawing.Font;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -35,9 +36,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
         private List<Player> _players;
-        private const int NumberOfPlayers = 2;
+        private static int NumberOfPlayers = 2;
         private TgcSkyBox _skyBox;
         readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
+        DateTime presentationDateTime = DateTime.Now;
+
         
 #region Presentation Fields
         private bool _showingPresentation = true;
@@ -129,13 +132,23 @@ namespace AlumnoEjemplos.LucasArtsTribute
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
-            while (_showingPresentation && !GuiController.Instance.D3dInput.keyDown(Key.Space))
+            while (_showingPresentation && !(GuiController.Instance.D3dInput.keyDown(Key.D1) || GuiController.Instance.D3dInput.keyDown(Key.D2)))
             {
+
                 Presentation();
                 return;
             }
             sound.Stop();
+            if (_showingPresentation)
+            {
+                if (GuiController.Instance.D3dInput.keyDown(Key.D1))
+                    NumberOfPlayers = 1;
+                if (GuiController.Instance.D3dInput.keyDown(Key.D2))
+                    NumberOfPlayers = 2;
+
+            }
             _showingPresentation = false;
+            
             
             //Device de DirectX para renderizar
             Device d3dDevice = GuiController.Instance.D3dDevice;
@@ -151,15 +164,13 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _skyBox.render();
                 _nosBottles.ForEach(item => item.Render());
             }
-
-
-
         }
 
         
 
         private void Presentation()
         {
+            Point textPosition = new Point(200,100);
             if (_presentationLoad==false)
             {
                 presentationImage = new TgcSprite();
@@ -168,14 +179,23 @@ namespace AlumnoEjemplos.LucasArtsTribute
                                              "LucasArtsTribute\\Presentation\\AudiTT.jpg");
                 presentationImage.Position = new Vector2(0, 0);
                 presentationImage.Scaling = new Vector2(0.6f, 0.6f);
+
                 presentationText = new TgcText2d();
                 presentationText.Color = Color.OrangeRed;
-                presentationText.Text = "Presione espacio para comenzar.";
-                presentationText.Size = new Size(100, 20);
-                presentationText.Position = new Point(0, 0);
+                presentationText.Text = "Presione 1 para un player o 2 para dos players.";
+                presentationText.Size = new Size(500, 400);
+                presentationText.changeFont(new Font("Times New Roman", 25.0f));
+                presentationText.Position = textPosition;
                 sound = new Mp3("LucasArtsTribute\\Presentation\\Daytona.mp3");
                 _presentationLoad = true;
+
             }
+            if ((DateTime.Now - presentationDateTime).Seconds > 2)
+            {
+                presentationText.Position = NewPosition();
+                presentationDateTime = DateTime.Now;
+            }
+
             GuiController.Instance.Drawer2D.beginDrawSprite();
             presentationImage.render();
             GuiController.Instance.Drawer2D.endDrawSprite();
@@ -186,42 +206,20 @@ namespace AlumnoEjemplos.LucasArtsTribute
             
         }
 
+        private Point NewPosition()
+        {
+            Random rand = new Random(DateTime.Now.Millisecond);
+            int xPoint = rand.Next(0, 400);
+            int yPoint = rand.Next(0, 400);
+            return new Point(xPoint, yPoint);
+        }
+
 
         public void LoadScenario()
         {
             Device d3DDevice = GuiController.Instance.D3dDevice;
             TgcTexture pisoTexture = TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\circuito.jpg");
             scenario = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
-
-            obstaculos = new List<TgcBox>();
-            //Pared1
-            TgcBox obstaculo = TgcBox.fromSize(
-                new Vector3(0, 0, 2500),
-                new Vector3(5000, 150, 80),
-                TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared2
-            obstaculo = TgcBox.fromSize(
-               new Vector3(0, 0, -2500),
-               new Vector3(5000, 150, 80),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared3
-            obstaculo = TgcBox.fromSize(
-               new Vector3(2500, 0, 0),
-               new Vector3(80, 150, 5000),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared4
-            obstaculo = TgcBox.fromSize(
-               new Vector3(-2500, 0, 0),
-               new Vector3(80, 150, 5000),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
             _nosBottles = Checkpoint.CreateAllCheckPoints();
         }
 

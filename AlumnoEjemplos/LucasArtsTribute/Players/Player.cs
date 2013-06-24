@@ -24,15 +24,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
             Cam.SetCenterTargetUp(_camDelta, initialPosition, new Vector3(0, 100, 0), true); 
             Cam.Enable = true;
             LoadCamara(true);
-            _nosRecolected = new LATSound("LucasArtsTribute\\NosBottleSound.wav");
-            /*
-             * Se configura el reflejo sobre el auto. (CarReflection)
-             * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
-             */
+            _nosRecolectedSound = new LATSound("LucasArtsTribute\\NosBottleSound.wav");
+            NosCount = 0;
             //Reflejo en el auto
             _carReflection = new CarReflection(Car);
-            /*//Crear caja para indicar ubicacion de la luz
-            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);*/
         }
 
         private void LoadCamara(bool teleport)
@@ -81,8 +76,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             {
                 if (Collision.TestOBB_Vs_OBB(Car.OBB, checkpoint.Obb))
                 {
-                    _nosRecolected.Play();
+                    _nosRecolectedSound.Play();
                     checkpoint.Enable = false;
+                    NosCount++;
                 }
             }
             
@@ -114,7 +110,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private readonly Vector3 _camDelta = new Vector3(0, 0, 0);
         private readonly CarReflection _carReflection;
         private int _playerNumber;
-        private Sound.LATSound _nosRecolected;
+        private Sound.LATSound _nosRecolectedSound;
+        public int NosCount { get; set; }
 
     }
 

@@ -6,11 +6,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using AlumnoEjemplos.LucasArtsTribute.Circuit;
+using AlumnoEjemplos.LucasArtsTribute.Sound;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using TgcViewer;
 using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcGeometry;
+using TgcViewer.Utils._2D;
+using Font = System.Drawing.Font;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -34,6 +37,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             players.Add(player);
             _upViewPort = LeftViewPortCreate();
 
+            _crashSound = new LATSound("LucasArtsTribute\\auto_choque.wav");
+
+
             GuiController.Instance.CustomRenderEnabled = true;
 
 
@@ -48,12 +54,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             int a = 0;
 
-            /*
-            if (Collision.TestOBB_Vs_OBB(players[0].Car.Obb, players[1].Car.Obb))
+            if (Collision.TestOBB_Vs_OBB(players[0].Car.OBB, players[1].Car.OBB))
             {
-                
+                _crashSound.Play();
             }
-            */
+            
 
             DownViewPort(GuiController.Instance.D3dDevice, players);
             //_skyBox.render();
@@ -65,6 +70,21 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             GuiController.Instance.D3dDevice.Present();
 
+            if (_nosBottles.All(item => item.Enable == false))
+            {
+                String winnerMessage = "El ganador es ";
+                if (players[0].NosCount > players[1].NosCount)
+                    winnerMessage += "Player 1";
+                else
+                    winnerMessage += "Player 2";
+                TgcText2d winnerText2D = new TgcText2d();
+                winnerText2D.Color = Color.OrangeRed;
+                winnerText2D.Text = winnerMessage;
+                winnerText2D.Size = new Size(500, 400);
+                winnerText2D.changeFont(new Font("Times New Roman", 25.0f));
+                winnerText2D.Position = new Point(200,100);
+                winnerText2D.render();
+            }
         }
 
 
@@ -85,8 +105,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             players[0].RenderPlayer(elapsedTime, _nosBottles);
             players[1].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
-
             d3dDevice.EndScene();
+
+
         }
 
         private static void UpViewPort(Device d3dDevice, List<Player> players)
@@ -157,5 +178,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private static Viewport _upViewPort;
         private static TgcSkyBox _skyBox;
         private static List<NosBottle> _nosBottles;
+        private static LATSound _crashSound;
     }
 }

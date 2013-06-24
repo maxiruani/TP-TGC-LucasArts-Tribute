@@ -89,7 +89,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 textCambio.Text = "R";
             else
                 textCambio.Text = s_gear.ToString();
-
             textCambio.Color = Color.Red;
             textCambio.Align = TgcText2d.TextAlign.LEFT;
             textCambio.Position = new Point(screenSize.Width - 140, screenSize.Height - 180);
