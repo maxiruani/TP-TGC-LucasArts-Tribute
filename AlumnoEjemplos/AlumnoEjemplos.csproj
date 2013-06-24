@@ -88,9 +88,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="LucasArtsTribute\Camara.cs" />
-    <Compile Include="LucasArtsTribute\Car\BasicCar.cs" />
-    <Compile Include="LucasArtsTribute\Car\Model.cs" />
-    <Compile Include="LucasArtsTribute\Car\FirstCar.cs" />
     <Compile Include="LucasArtsTribute\Players\Multiplayer.cs" />
     <Compile Include="LucasArtsTribute\Players\Player.cs" />
     <Compile Include="LucasArtsTribute\Players\UserControls.cs" />
@@ -98,13 +95,9 @@
     <Compile Include="LucasArtsTribute\Sound\Mp3.cs" />
     <Compile Include="LucasArtsTribute\Utils\MathHelper.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\CarReflection.cs" />
-    <Compile Include="LucasArtsTribute\Car\CorvetteCar.cs" />
-    <Compile Include="LucasArtsTribute\Car\Stats.cs" />
-    <Compile Include="LucasArtsTribute\Car\Vector.cs" />
     <Compile Include="LucasArtsTribute\Circuit\Checkpoint.cs" />
     <Compile Include="LucasArtsTribute\Components\LATMesh.cs" />
     <Compile Include="LucasArtsTribute\EjemploAlumno.cs" />
-    <Compile Include="LucasArtsTribute\Car\Instrumental.cs" />
     <Compile Include="LucasArtsTribute\Utils\ConfigurationManager.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\Collision.cs" />
     <Compile Include="LucasArtsTribute\Vehicle\OrientedBoundingBox.cs" />

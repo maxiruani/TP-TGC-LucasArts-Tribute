@@ -26,13 +26,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     public class LucasArtsTribute : TgcExample
     {
         private List<NosBottle> _nosBottles;
-        private int _originalHeight;
-        private int _originalWidth;
         public Camara cam;
-        // Model car;
-        private Vehicle car;
-        private TgcBox lightBox;
-        private List<TgcBox> obstaculos;
         private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
         private List<Player> _players;
@@ -49,6 +43,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private TgcSprite presentationImage;
         private Mp3 sound;
 #endregion
+
         /// <summary>
         ///     Categoría a la que pertenece el ejemplo.
         ///     Influye en donde se va a haber en el árbol de la derecha de la pantalla.

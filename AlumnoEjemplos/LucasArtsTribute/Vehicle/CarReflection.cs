@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using AlumnoEjemplos.LucasArtsTribute.Car;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
@@ -68,12 +67,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             
 
         }
-
-        public void EffectDisable(CorvetteCar car)
-        {
-            car.Mesh.Effect = null;
-        }
-
 
         private static bool isConfigInitialize;
         private Vehicle _car;
