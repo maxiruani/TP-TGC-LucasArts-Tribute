@@ -5,18 +5,15 @@ using AlumnoEjemplos.LucasArtsTribute.Circuit;
 using AlumnoEjemplos.LucasArtsTribute.Sound;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
-using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX.DirectInput;
 using TgcViewer;
 using TgcViewer.Example;
-using TgcViewer.Utils.Input;
 using TgcViewer.Utils.Sound;
 using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcGeometry;
 using TgcViewer.Utils.TgcSceneLoader;
 using TgcViewer.Utils._2D;
 using Device = Microsoft.DirectX.Direct3D.Device;
-using Font = System.Drawing.Font;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -25,24 +22,29 @@ namespace AlumnoEjemplos.LucasArtsTribute
     /// </summary>
     public class LucasArtsTribute : TgcExample
     {
+        private static int NumberOfPlayers = 1;
+        private readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
+        private bool _isGameStarted;
         private List<NosBottle> _nosBottles;
-        public Camara cam;
+
+        private List<Player> _players;
+        private TgcSkyBox _skyBox;        public Camara cam;
+
+        private Vehicle car;
+        private List<TgcBox> obstaculos;        private DateTime presentationDateTime = DateTime.Now;
         private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
-        private List<Player> _players;
-        private static int NumberOfPlayers = 2;
-        private TgcSkyBox _skyBox;
-        readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
-        DateTime presentationDateTime = DateTime.Now;
 
-        
-#region Presentation Fields
+        #region Presentation Fields
+
+        private bool _presentationLoad;
         private bool _showingPresentation = true;
-        private bool _presentationLoad = false;
-        private TgcText2d presentationText;
         private TgcSprite presentationImage;
+        private TgcText2d presentationText;
         private Mp3 sound;
-#endregion
+
+        #endregion
+
 
         /// <summary>
         ///     Categoría a la que pertenece el ejemplo.
@@ -90,7 +92,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             //Obstaculo 1
 
             _players = new List<Player>();
-            
+
             SetCarParameters(NumberOfPlayers);
 
             //Ejecutar en loop los sonidos
@@ -102,10 +104,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         private void SetCarParameters(int playersCount)
         {
-            if(playersCount==1)
+            if (playersCount == 1)
             {
                 String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                Player player = new Player(scenario, config, new Vector3(5,-50,5), 1); //Envío la superficie, la configuración y la posicion inicial
+                var player = new Player(scenario, config, new Vector3(5, -50, 5), 1);
+                    //Envío la superficie, la configuración y la posicion inicial
                 _players.Add(player);
             }
             else if (playersCount == 2)
@@ -115,7 +118,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _players = Multiplayer.CreateMultiplayer(scenario, config1, config2, _skyBox, _nosBottles);
             }
             // GuiController.Instance.CurrentCamera = cam;
-
         }
 
 
@@ -127,24 +129,33 @@ namespace AlumnoEjemplos.LucasArtsTribute
         /// <param name="elapsedTime">Tiempo en segundos transcurridos desde el último frame</param>
         public override void render(float elapsedTime)
         {
-            while (_showingPresentation && !(GuiController.Instance.D3dInput.keyDown(Key.D1) || GuiController.Instance.D3dInput.keyDown(Key.D2)))
+            if (!_isGameStarted)
             {
+                while (_showingPresentation &&
+                       !(GuiController.Instance.D3dInput.keyDown(Key.D1) ||
+                         GuiController.Instance.D3dInput.keyDown(Key.D2)))
+                {
+                    Presentation();
+                    return;
+                }
 
-                Presentation();
-                return;
-            }
-            sound.Stop();
-            if (_showingPresentation)
-            {
-                if (GuiController.Instance.D3dInput.keyDown(Key.D1))
-                    NumberOfPlayers = 1;
-                if (GuiController.Instance.D3dInput.keyDown(Key.D2))
-                    NumberOfPlayers = 2;
-
+                sound.Stop();
+                if (_showingPresentation)
+                {
+                    if (GuiController.Instance.D3dInput.keyDown(Key.D1))
+                        NumberOfPlayers = 1;
+                    else if (GuiController.Instance.D3dInput.keyDown(Key.D2))
+                        NumberOfPlayers = 2;
+                    else
+                        return;
+                    init();
+                    //SetCarParameters(NumberOfPlayers);
+                }
             }
             _showingPresentation = false;
-            
-            
+            _isGameStarted = true;
+
+
             //Device de DirectX para renderizar
             Device d3dDevice = GuiController.Instance.D3dDevice;
             // Vector3 lightPosition = (Vector3)GuiController.Instance.Modifiers["LightPosition"];
@@ -161,12 +172,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
         }
 
-        
 
         private void Presentation()
         {
-            Point textPosition = new Point(200,100);
-            if (_presentationLoad==false)
+            var textPosition = new Point(200, 100);
+            if (_presentationLoad == false)
             {
                 presentationImage = new TgcSprite();
                 presentationImage.Texture =
@@ -183,7 +193,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 presentationText.Position = textPosition;
                 sound = new Mp3("LucasArtsTribute\\Presentation\\Daytona.mp3");
                 _presentationLoad = true;
-
             }
             if ((DateTime.Now - presentationDateTime).Seconds > 2)
             {
@@ -196,14 +205,13 @@ namespace AlumnoEjemplos.LucasArtsTribute
             GuiController.Instance.Drawer2D.endDrawSprite();
             presentationText.render();
 
-            if(!sound.IsPlaying())
+            if (!sound.IsPlaying())
                 sound.Play();
-            
         }
 
         private Point NewPosition()
         {
-            Random rand = new Random(DateTime.Now.Millisecond);
+            var rand = new Random(DateTime.Now.Millisecond);
             int xPoint = rand.Next(0, 400);
             int yPoint = rand.Next(0, 400);
             return new Point(xPoint, yPoint);
@@ -213,7 +221,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
         public void LoadScenario()
         {
             Device d3DDevice = GuiController.Instance.D3dDevice;
-            TgcTexture pisoTexture = TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\circuito.jpg");
+            TgcTexture pisoTexture = TgcTexture.createTexture(d3DDevice,
+                                                              _alumnoMediaFolder + "LucasArtsTribute\\circuito.jpg");
             scenario = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
             _nosBottles = Checkpoint.CreateAllCheckPoints();
         }
@@ -266,6 +275,5 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 sound.dispose();
             }
         }
-
     }
 }
