@@ -34,9 +34,12 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public TgcMesh brw;				// Mesh de la Rueda Trasera Derecha
 
         // OBB
-        private OrientedBoundingBox _obb;
-        public OrientedBoundingBox Obb
-        { get { return _obb; } }
+        private TgcObb _obb;
+
+        public TgcObb OBB
+        {
+            get { return _obb; }
+        }
 
         // Sonidos
         LATSound engine;				// Sonido del motor
@@ -172,7 +175,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public Vector3 VVelocity { get { return v_velocity; } }
         public float SOmega { get { return s_omega; } }
 
-        static StreamWriter sw = new StreamWriter("C:\\TGC-Logs\\log.txt");
+        static StreamWriter sw = new StreamWriter("D:\\TGC-Logs\\log.txt");
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
         {
@@ -191,7 +194,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             ResetVehicle();		                        // Inicializo el vehiculo
             SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	                        // Inicializo todas las variables
-            _obb = new OrientedBoundingBox(this);
+            
+            _obb = TgcObb.computeFromAABB(body.BoundingBox);
 
             this._velocimetro = new Velocimetro();
         }
@@ -1172,8 +1176,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
             //PrintDebugInfo();
 
-            _obb.Move();
-
+            // Seteo la posicion y rotation del OBB segun las del cuerpo del vehiculo
+            _obb.Center = body.Position;
+            _obb.setRotation(body.Rotation);
         }
 
         public void ResetVariables()
@@ -1257,7 +1262,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             blw.render();
             brw.render();
 
-            _obb.Render();
+            // Renderizo el OBB
+            _obb.render();
 
             // Actualizar velocimetro
             _velocimetro.setVelocidad(v_velocity.Length(), s_rpm);
