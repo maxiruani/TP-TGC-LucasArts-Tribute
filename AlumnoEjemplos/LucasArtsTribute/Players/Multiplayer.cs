@@ -100,10 +100,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
                             Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
 
             d3dDevice.BeginScene();
-            players[0].Cam.Enable = false;
-            players[1].Cam.Enable = true;
-            players[0].RenderPlayer(elapsedTime, _nosBottles);
+            players[1].Cam.Enable = false;
+            players[0].Cam.Enable = true;
             players[1].RenderPlayer(elapsedTime, _nosBottles);
+            players[0].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
             d3dDevice.EndScene();
 
@@ -120,30 +120,13 @@ namespace AlumnoEjemplos.LucasArtsTribute
                         Color.FromArgb(255, 0, 255, 0), 1.0f, 0);
 
             d3dDevice.BeginScene();
-            players[0].Cam.Enable = true;
-            players[1].Cam.Enable = false;
-            players[0].RenderPlayer(elapsedTime, _nosBottles);
+            players[1].Cam.Enable = true;
+            players[0].Cam.Enable = false;
             players[1].RenderPlayer(elapsedTime, _nosBottles);
+            players[0].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
             d3dDevice.EndScene();
 
-            //LightAndReflection();
-            /*
-            
-            foreach (Checkpoint obstacle in _obstacles)
-            {
-                obstacle.Render();
-                TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(obstacle.ObstacleBox.BoundingBox, car.Mesh.BoundingBox);
-                if (result == TgcCollisionUtils.BoxBoxResult.Adentro || result == TgcCollisionUtils.BoxBoxResult.Atravesando)
-                {
-                    Vector3 collisionZone = TgcCollisionUtils.closestPointAABB(car.Mesh.Position, obstacle.ObstacleBox.BoundingBox);
-                    car.Mesh.Position = lastPos;
-                    car.Position_wc = lastPos2;
-                    car.CrashWithObject();
-                    break;
-                }
-            }
-            */
         }
 
         private static Viewport LeftViewPortCreate()

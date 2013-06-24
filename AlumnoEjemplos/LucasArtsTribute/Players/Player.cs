@@ -90,7 +90,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private void LightAndReflection()
         {
             if(_playerNumber==1)
-                _carReflection.Render();
+               _carReflection.Render();
         }
 
         private static TgcSceneLoader _loader;
