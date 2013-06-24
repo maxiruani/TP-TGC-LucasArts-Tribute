@@ -60,8 +60,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public LineSegment2D(Vector2 p1, Vector2 p2)
         {
-            pointA = p1;
-            pointB = p2;
+            pointA.X = (int)p1.X;
+            pointA.Y = (int)p1.Y;
+            pointB.X = (int)p2.X;
+            pointB.Y = (int)p2.Y;
         }
 
         public bool IntersectWithSegment(LineSegment2D segmento)

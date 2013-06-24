@@ -24,7 +24,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     /// </summary>
     public class LucasArtsTribute : TgcExample
     {
-        private List<Checkpoints> _obstacles;
+        private List<NosBottle> _nosBottles;
         private int _originalHeight;
         private int _originalWidth;
         public Camara cam;
@@ -86,13 +86,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
             LoadSkyBox();
 
             //Cargar obstaculos y posicionarlos. Los obstáculos se crean con TgcBox en lugar de cargar un modelo.
-            _obstacles = new List<Checkpoints>();
             sonidos = new List<Tgc3dSound>();
             Tgc3dSound sound;
 
-            Checkpoints wheelBox = new NosBottle(d3dDevice, new Vector3(0, -50, 0), new Vector3(5, 10, 5));
             //Obstaculo 1
-            _obstacles.Add(wheelBox);
 
             _players = new List<Player>();
             
@@ -117,7 +114,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             {
                 String config1 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
                 String config2 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\TT\\TT.txt";
-                _players = Multiplayer.CreateMultiplayer(scenario, config1, config2, _skyBox);
+                _players = Multiplayer.CreateMultiplayer(scenario, config1, config2, _skyBox, _nosBottles);
             }
             // GuiController.Instance.CurrentCamera = cam;
 
@@ -150,9 +147,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             if (_players.Count == 1)
             {
                 _players[0].DoPhysics(elapsedTime);
-                _players[0].RenderPlayer(elapsedTime);
+                _players[0].RenderPlayer(elapsedTime, _nosBottles);
                 _skyBox.render();
-                _obstacles.ForEach(item => item.Render());
+                _nosBottles.ForEach(item => item.Render());
             }
 
 
@@ -224,6 +221,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
                new Vector3(80, 150, 5000),
                TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
             obstaculos.Add(obstaculo);
+
+            _nosBottles = Checkpoint.CreateAllCheckPoints();
         }
 
 
@@ -262,7 +261,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         public override void close()
         {
             scenario.dispose();
-            foreach (Checkpoints obstacle in _obstacles)
+            foreach (Checkpoint obstacle in _nosBottles)
             {
                 obstacle.Dispose();
             }

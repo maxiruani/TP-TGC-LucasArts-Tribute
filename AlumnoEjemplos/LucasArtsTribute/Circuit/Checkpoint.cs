@@ -10,9 +10,27 @@ using TgcViewer.Utils.TgcSceneLoader;
 
 namespace AlumnoEjemplos.LucasArtsTribute.Circuit
 {
-    public class Checkpoints
+
+    public class Checkpoint
     {
-        public Checkpoints(Vector3 center, Vector3 size, TgcTexture texture)
+        public static List<NosBottle> CreateAllCheckPoints()
+        {
+            Random random = new Random(12);
+            Vector3 nosBottleSize = new Vector3(5, 10, 5);
+            List<NosBottle> checkpoints = new List<NosBottle>();
+            for (int i = 0; i < 10; i++)
+            {
+                Vector3 randomPosition = new Vector3();
+                randomPosition.X = random.Next(10, 2000);
+                randomPosition.Z = random.Next(10, 2000);
+                randomPosition.Y = -20;
+                NosBottle checkpoint = new NosBottle(GuiController.Instance.D3dDevice, randomPosition, nosBottleSize);
+                checkpoints.Add(checkpoint);
+            }
+            return checkpoints;
+        } 
+
+        public Checkpoint(Vector3 center, Vector3 size, TgcTexture texture)
         {
             _box = TgcBox.fromSize(center, size, texture);
         }
@@ -39,21 +57,27 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
         }
     }
 
-    public class NosBottle : Checkpoints
+    public class NosBottle : Checkpoint
     {
         public NosBottle(Microsoft.DirectX.Direct3D.Device d3dDevice, Vector3 center, Vector3 size)
             : base(center, size, TgcTexture.createTexture(d3dDevice,
                                      GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\NosBottle.jpg"))
         {
             Obb = new OrientedBoundingBox(this.ObstacleBox.Position, this.ObstacleBox.Size);
+            Enable = true;
         }
 
         public override void Render()
         {
-            this.ObstacleBox.render();
-            Obb.Render();
+            if (Enable)
+            {
+                this.ObstacleBox.render();
+                Obb.Render();
+            }
         }
         public OrientedBoundingBox Obb { get; internal set; }
+
+        public bool Enable { get; set; }
 
     }
 }

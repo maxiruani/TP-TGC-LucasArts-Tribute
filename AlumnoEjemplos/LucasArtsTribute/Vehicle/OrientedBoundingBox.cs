@@ -17,7 +17,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         public OrientedBoundingBox()
         {
-            _renderColor = Color.Yellow.ToArgb();
+           // _renderColor = Color.Yellow.ToArgb();
             _dirtyValues = true;
             AlphaBlendEnable = false;
         }
@@ -252,7 +252,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             float angle = Geometry.DegreeToRadian(_angle);
             Vector3 rotation = new Vector3(0, angle , 0);
             Vector3[] newAxis = new Vector3[3];
-
+            
             Matrix rotMat = Matrix.RotationYawPitchRoll(-rotation.Y, -rotation.X, -rotation.Z);
 
             Matrix axisActual = new Matrix();

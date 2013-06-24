@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using AlumnoEjemplos.LucasArtsTribute.Circuit;
 using AlumnoEjemplos.LucasArtsTribute.Players;
+using AlumnoEjemplos.LucasArtsTribute.Sound;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
 using Microsoft.DirectX;
 using Microsoft.DirectX.DirectInput;
@@ -21,6 +24,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             Cam.SetCenterTargetUp(_camDelta, initialPosition, new Vector3(0, 100, 0), true); 
             Cam.Enable = true;
             LoadCamara(true);
+            _nosRecolected = new LATSound("LucasArtsTribute\\NosBottleSound.wav");
             /*
              * Se configura el reflejo sobre el auto. (CarReflection)
              * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
@@ -67,11 +71,20 @@ namespace AlumnoEjemplos.LucasArtsTribute
             Car.ControlVehicle(input, delta_t);
         }
 
-        public void RenderPlayer(float elapsedTime)
+        public void RenderPlayer(float elapsedTime, List<NosBottle> checkpoints)
         {
             // Render scenario
             Piso.render();
             Car.Render();
+            foreach (NosBottle checkpoint in checkpoints)
+            {
+                if (Collision.TestOBB_Vs_OBB(Car.Obb, checkpoint.Obb))
+                {
+                    _nosRecolected.Play();
+                    checkpoint.Enable = false;
+                }
+            }
+            checkpoints.ForEach(checkpoint => checkpoint.Render());
             LightAndReflection();
             LoadCamara(false);
         }
@@ -99,6 +112,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private readonly Vector3 _camDelta = new Vector3(0, 0, 0);
         private readonly CarReflection _carReflection;
         private int _playerNumber;
+        private Sound.LATSound _nosRecolected;
 
     }
 
