@@ -23,7 +23,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
                 Vector3 randomPosition = new Vector3();
                 randomPosition.X = random.Next(10, 2000);
                 randomPosition.Z = random.Next(10, 2000);
-                randomPosition.Y = -20;
+                randomPosition.Y = -50;
                 NosBottle checkpoint = new NosBottle(GuiController.Instance.D3dDevice, randomPosition, nosBottleSize);
                 checkpoints.Add(checkpoint);
             }
