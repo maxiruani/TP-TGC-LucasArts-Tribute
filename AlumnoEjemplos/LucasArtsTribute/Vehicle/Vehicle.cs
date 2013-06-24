@@ -35,8 +35,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         // OBB
         private OrientedBoundingBox _obb;
-        public OrientedBoundingBox Obb
-        { get { return _obb; } }
+
+        public OrientedBoundingBox OBB
+        {
+            get { return _obb; }
+        }
 
         // Sonidos
         LATSound engine;				// Sonido del motor
@@ -191,7 +194,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             ResetVehicle();		                        // Inicializo el vehiculo
             SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	                        // Inicializo todas las variables
-            _obb = new OrientedBoundingBox(this);
+
+            _obb = OrientedBoundingBox.computeFromAABB(body.BoundingBox);
 
             this._velocimetro = new Velocimetro();
         }
@@ -1172,8 +1176,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
             //PrintDebugInfo();
 
-            _obb.Move();
-
+            // Seteo la posicion y rotation del OBB segun las del cuerpo del vehiculo
+            _obb.Center = body.Position;
+            _obb.setRotation(body.Rotation);
         }
 
         public void ResetVariables()
@@ -1257,7 +1262,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             blw.render();
             brw.render();
 
-            _obb.Render();
+            // Renderizo el OBB
+            _obb.render();
 
             // Actualizar velocimetro
             _velocimetro.setVelocidad(v_velocity.Length(), s_rpm);

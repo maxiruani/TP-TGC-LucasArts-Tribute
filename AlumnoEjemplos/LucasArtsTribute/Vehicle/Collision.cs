@@ -7,6 +7,23 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         private const float Epsilon2 = 0.01f;
 
+        /*public static bool TestOBB_Vs_OBB(OrientedBoundingBox a, OrientedBoundingBox b)
+        {
+            LineSegment2D[] segA = GetSegmentInXZ(GetVertexInXZ(a));
+            LineSegment2D[] segB = GetSegmentInXZ(GetVertexInXZ(b));
+
+
+            for (int j = 0; j < 4; j++)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    if (segA[i].IntersectWithSegment(segB[j]))
+                        return true;
+                }
+            }
+            return false;
+        }*/
+
         public static bool TestOBB_Vs_OBB(OrientedBoundingBox a, OrientedBoundingBox b)
         {
             LineSegment2D[] segA = GetSegmentInXZ(GetVertexInXZ(a));
@@ -38,7 +55,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public static Vector2[] GetVertexInXZ(OrientedBoundingBox a)
         {
-            Vector3[] vertex3D = a.ComputeCorners();
+            Vector3[] vertex3D = a.computeCorners();
 
             Vector2[] vertex2D = new Vector2[4];
 

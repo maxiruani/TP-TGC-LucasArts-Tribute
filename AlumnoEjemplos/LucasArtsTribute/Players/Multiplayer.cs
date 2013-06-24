@@ -47,12 +47,16 @@ namespace AlumnoEjemplos.LucasArtsTribute
             players[1].DoPhysics(elapsedTime);
 
             int a = 0;
+
+            /*
             if (Collision.TestOBB_Vs_OBB(players[0].Car.Obb, players[1].Car.Obb))
             {
                 
             }
+            */
+
             DownViewPort(GuiController.Instance.D3dDevice, players);
-        //    _skyBox.render();
+            //_skyBox.render();
 
             GuiController.Instance.CurrentCamera.updateCamera();
             GuiController.Instance.CurrentCamera.updateViewMatrix(GuiController.Instance.D3dDevice);

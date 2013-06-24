@@ -35,7 +35,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private TgcBox scenario;
         private List<Tgc3dSound> sonidos;
         private List<Player> _players;
-        private const int NumberOfPlayers = 1;
+        private const int NumberOfPlayers = 2;
         private TgcSkyBox _skyBox;
         readonly String _alumnoMediaFolder = GuiController.Instance.AlumnoEjemplosMediaDir;
         
