@@ -76,7 +76,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             // Render scenario
             Piso.render();
             Car.Render();
-            /*
+            
             foreach (NosBottle checkpoint in checkpoints)
             {
                 if (Collision.TestOBB_Vs_OBB(Car.OBB, checkpoint.Obb))
@@ -85,7 +85,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                     checkpoint.Enable = false;
                 }
             }
-            */
+            
             checkpoints.ForEach(checkpoint => checkpoint.Render());
             LightAndReflection();
             LoadCamara(false);

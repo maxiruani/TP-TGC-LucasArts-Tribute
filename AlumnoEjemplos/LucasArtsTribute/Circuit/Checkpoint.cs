@@ -63,7 +63,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
             : base(center, size, TgcTexture.createTexture(d3dDevice,
                                      GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\NosBottle.jpg"))
         {
-            Obb = new OrientedBoundingBox(this.ObstacleBox.Position, this.ObstacleBox.Size);
+            Obb = OrientedBoundingBox.computeFromAABB(TgcBox.fromSize(center, size).BoundingBox);
+            Obb.Center = this.ObstacleBox.Position;
             Enable = true;
         }
 
@@ -72,7 +73,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.Circuit
             if (Enable)
             {
                 this.ObstacleBox.render();
-                Obb.Render();
+                Obb.render();
             }
         }
         public OrientedBoundingBox Obb { get; internal set; }

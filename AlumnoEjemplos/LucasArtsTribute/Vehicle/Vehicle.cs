@@ -34,9 +34,9 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public LATMesh brw;				// Mesh de la Rueda Trasera Derecha
 
         // OBB
-        private TgcObb _obb;
+        private OrientedBoundingBox _obb;
 
-        public TgcObb OBB
+        public OrientedBoundingBox OBB
         {
             get { return _obb; }
         }
@@ -178,6 +178,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
         {
+
             // Seteo las propiedades del auto que se obtuvieron del archivo de configuracion.
             make = VehicleProperties.Create(path);
 
@@ -190,8 +191,8 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             ResetVehicle();		                        // Inicializo el vehiculo
             SetupVehicle(initialPosition, loader);	    // Seteo el vehiculo
             ResetVariables();	                        // Inicializo todas las variables
-            
-            _obb = TgcObb.computeFromAABB(body.BoundingBox);
+
+            _obb = OrientedBoundingBox.computeFromAABB(body.BoundingBox);
 
             this._velocimetro = new Velocimetro();
         }
@@ -200,12 +201,15 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         {
             // Cargo el mesh del cuerpo del vehiculo
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + make.bodyObj);
+
             body = LATMesh.FromTgcMesh(scene.Meshes[0]);
 
             // Cargo los meshes de las ruedas del vehiculo
             scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + make.tyreObj);
+
             flw = LATMesh.FromTgcMesh(scene.Meshes[0]);
             flw.Name = "flw";
+
             frw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("frw"));
             blw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("blw"));
             brw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("brw"));
@@ -1312,6 +1316,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             sw.WriteLine("brw weight: " + s_brwWeight);
             sw.WriteLine("max torque: " + s_maxTorque);
             sw.WriteLine("longitudinal: " + v_longitudinalForce.Length());
+
             */
         }
 
