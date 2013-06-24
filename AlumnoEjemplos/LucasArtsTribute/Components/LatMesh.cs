@@ -14,6 +14,50 @@ namespace AlumnoEjemplos.LucasArtsTribute.Components
     public class LATMesh : TgcMesh
     {
 
+        public static LATMesh FromTgcMesh(TgcMesh tgc)
+        {
+            LATMesh mesh = new LATMesh();
+
+            mesh.d3dMesh = tgc.D3dMesh;
+            mesh.name = tgc.Name;
+            mesh.layer = tgc.Layer;
+            mesh.UserProperties = tgc.UserProperties;
+            mesh.materials = tgc.Materials;
+            mesh.effect = tgc.Effect;
+            mesh.technique = tgc.Technique;
+            mesh.diffuseMaps = tgc.DiffuseMaps;
+            mesh.lightMap = tgc.LightMap;
+            mesh.enabled = tgc.Enabled;
+            mesh.transform = tgc.Transform;
+            mesh.autoTransformEnable = tgc.AutoTransformEnable;
+            mesh.translation = tgc.Position;
+            mesh.rotation = tgc.Rotation;
+            mesh.scale = tgc.Scale;
+            mesh.boundingBox = tgc.BoundingBox;
+            mesh.renderType = tgc.RenderType;
+            mesh.vertexDeclaration = tgc.VertexDeclaration;
+            mesh.AutoUpdateBoundingBox = tgc.AutoUpdateBoundingBox;
+            mesh.parentInstance = tgc.ParentInstance;
+            mesh.meshInstances = tgc.MeshInstances;
+            mesh.alphaBlendEnable = tgc.AlphaBlendEnable;
+
+            return mesh;
+        }
+
+        protected LATMesh()
+        {
+        }
+
+        public LATMesh(Mesh mesh, string name, MeshRenderType renderType) : base(mesh, name, renderType)
+        {
+            this.createBoundingBox();
+        }
+        /*
+        public LATMesh(string name, TgcMesh parentInstance, Vector3 translation, Vector3 rotation, Vector3 scale) : base(name, parentInstance, translation, rotation, scale)
+        {
+
+        }
+        */
         public Vector3 TransformCoord(Vector3 src)
         {
             Matrix transf = Matrix.RotationYawPitchRoll(rotation.Y, rotation.X, rotation.Z) * Matrix.Translation(translation);

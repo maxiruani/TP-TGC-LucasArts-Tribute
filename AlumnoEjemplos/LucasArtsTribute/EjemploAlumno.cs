@@ -112,8 +112,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             }
             else if (playersCount == 2)
             {
-                String config1 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                String config2 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\TT\\TT.txt";
+                String config1 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\TT\\TT.txt";
+                String config2 = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\MC\\MC.txt";
                 _players = Multiplayer.CreateMultiplayer(scenario, config1, config2, _skyBox, _nosBottles);
             }
             // GuiController.Instance.CurrentCamera = cam;

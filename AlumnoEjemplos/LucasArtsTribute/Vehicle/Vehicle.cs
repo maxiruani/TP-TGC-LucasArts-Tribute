@@ -27,11 +27,11 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
          */
 
         // Meshes
-        public TgcMesh body;			// Mesh del cuerpo del Vehiculo
-        public TgcMesh flw;			    // Mesh de la Rueda Frontal Izquierda
-        public TgcMesh frw;				// Mesh de la Rueda Frontal Derecha
-        public TgcMesh blw;				// Mesh de la Rueda Trasera Izquierda
-        public TgcMesh brw;				// Mesh de la Rueda Trasera Derecha
+        public LATMesh body;			// Mesh del cuerpo del Vehiculo
+        public LATMesh flw;			    // Mesh de la Rueda Frontal Izquierda
+        public LATMesh frw;				// Mesh de la Rueda Frontal Derecha
+        public LATMesh blw;				// Mesh de la Rueda Trasera Izquierda
+        public LATMesh brw;				// Mesh de la Rueda Trasera Derecha
 
         // OBB
         private TgcObb _obb;
@@ -175,18 +175,14 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public Vector3 VVelocity { get { return v_velocity; } }
         public float SOmega { get { return s_omega; } }
 
-        static StreamWriter sw = new StreamWriter("D:\\TGC-Logs\\log.txt");
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
         {
-            sw.WriteLine("Instance Car");
-
             // Seteo las propiedades del auto que se obtuvieron del archivo de configuracion.
             make = VehicleProperties.Create(path);
 
             if (make == null)
             {
-                sw.WriteLine("No se pudo leer el Archivo de Configuracion");
                 throw new Exception("No se pudo leer el Archivo de Configuracion");
             }
 
@@ -204,15 +200,15 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         {
             // Cargo el mesh del cuerpo del vehiculo
             TgcScene scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + make.bodyObj);
-            body = scene.Meshes[0];
+            body = LATMesh.FromTgcMesh(scene.Meshes[0]);
 
             // Cargo los meshes de las ruedas del vehiculo
             scene = loader.loadSceneFromFile(GuiController.Instance.AlumnoEjemplosMediaDir + make.tyreObj);
-            flw = scene.Meshes[0];
+            flw = LATMesh.FromTgcMesh(scene.Meshes[0]);
             flw.Name = "flw";
-            frw = scene.Meshes[0].clone("frw");
-            blw = scene.Meshes[0].clone("blw");
-            brw = scene.Meshes[0].clone("brw");
+            frw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("frw"));
+            blw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("blw"));
+            brw = LATMesh.FromTgcMesh(scene.Meshes[0].clone("brw"));
 
             // Determino el centro de gravedad
             v_sCOG = new Vector3(body.Position.X + make.cog.X, body.Position.Y + make.cog.Y, body.Position.Z + make.cog.Z);
@@ -1303,9 +1299,12 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 
         public void PrintDebugInfo()
         {
+            /*
             sw.WriteLine("--------------------------");
             sw.WriteLine("now traction: " + v_tractionForce.Length());
             sw.WriteLine("acceleration: " + v_acceleration.Length());
+            sw.WriteLine("velocity: " + v_velocity.Length());
+            sw.WriteLine("rpm: " + s_rpm);
             sw.WriteLine("time factor: " + delta_t);
             sw.WriteLine("flw weight: " + s_flwWeight);
             sw.WriteLine("frw weight: " + s_frwWeight);
@@ -1313,19 +1312,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             sw.WriteLine("brw weight: " + s_brwWeight);
             sw.WriteLine("max torque: " + s_maxTorque);
             sw.WriteLine("longitudinal: " + v_longitudinalForce.Length());
-
-            sw.WriteLine("v_flwSPos: " + v_flwSPos);
-            sw.WriteLine("v_frwSPos: " + v_frwSPos);
-            sw.WriteLine("v_blwSPos: " + v_blwSPos);
-            sw.WriteLine("v_brwSPos: " + v_brwSPos);
-
-            sw.WriteLine("v_flwRPos: " + v_flwRPos);
-            sw.WriteLine("v_frwRPos: " + v_frwRPos);
-            sw.WriteLine("v_blwRPos: " + v_blwRPos);
-            sw.WriteLine("v_brwRPos: " + v_brwRPos);
-
-            sw.WriteLine("body.Rotation: " + body.Rotation);
-            sw.WriteLine("body.Position: " + body.Position);
+            */
         }
 
     }
