@@ -139,9 +139,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public Vector3 ActualCamara { get; internal set; }
         private List<Vector3> camaraVectors;
-        Vector3 defaultCamara = new Vector3(0, 250, -800);
-        Vector3 farCamara = new Vector3(0, 250, -800);
-        Vector3 nearCamara = new Vector3(0, 10, -35);
+        Vector3 defaultCamara = new Vector3(0, 150, -800);
+        Vector3 farCamara = new Vector3(0, 70, -400);
+        Vector3 nearCamara = new Vector3(0, 7, -50);
 
     }
 }

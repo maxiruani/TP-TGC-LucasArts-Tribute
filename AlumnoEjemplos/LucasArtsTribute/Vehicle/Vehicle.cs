@@ -60,111 +60,109 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         float nzWeightAng;				// Angulo de transferencia de peso en el eje Z (Despues de la curva)
         float ozWeightAng;				// Angulo de transferencia de peso en el eje Z (Antes de la curva)
 
-        Vector3 fPos;					// stores vehicle front ground position
-        Vector3 bPos;					// stores vehicle back ground position
-        Vector3 lPos;					// stores vehicle left ground position
-        Vector3 rPos;					// stores vehicle right ground position
-        Vector3 bDir;					// stores the vehicle body direction
-        Vector3 bNDir;					// stores the vehicle body normal direction
-        Vector3 vDir;					// stores the vehicle velocity direction
-        Vector3 fwvDir;					// stores the vehicle front wheel velocity direction
-        Vector3 flwDir;					// stores the front left wheel steer direction
-        Vector3 frwDir;					// stores the front right wheel steer direction
-        Vector3 flwNDir;				// stores the front left wheel normal direction
-        Vector3 frwNDir;				// stores the front right wheel normal direction
-        Vector3 blwNDir;				// stores the back left wheel normal direction
-        Vector3 brwNDir;				// stores the back right wheel normal direction
+        Vector3 fPos;					
+        Vector3 bPos;					
+        Vector3 lPos;					
+        Vector3 rPos;					
+        Vector3 bDir;					
+        Vector3 bNDir;					
+        public Vector3 vDir;			
+        Vector3 fwvDir;					
+        Vector3 flwDir;					
+        Vector3 frwDir;					
+        Vector3 flwNDir;				
+        Vector3 frwNDir;				
+        Vector3 blwNDir;				
+        Vector3 brwNDir;				
 
         /*
          * Variables fisicas
          */
         // Propiedades
-        VehicleProperties make;			// stores the unique properties of the car
+        VehicleProperties make;			
 
         // Escalares
-        int s_gear;						// stores the current vehicle gear (1 to 6 or 0 for reverse)
-        int s_ogear;					// stores the old vehicle gear
-        int s_dir;						// stores the direction the vehicle is moving in (1=front,0=still,-1=back)
-        float s_lsRadius;				// stores the low speed radius of curvature
-        float s_hsRadius;				// stores the high speed radius of curvature
-        float s_centripetalForce;		// stores the centripetal cornering force
-        float s_frontLateralForce;		// stores the lateral force from the front wheels
-        float s_rearLateralForce;		// stores the lateral force from the rear wheels
-        float s_frontCornerStiff;		// stores the cornering stiffness of the front wheels
-        float s_rearCornerStiff;		// stores the cornering stiffness of the rear wheels
-        float s_omega;					// vehicle angular velocity at low speed
-        float s_frontAlpha;				// vehicle front wheel sideslip angle
-        float s_rearAlpha;				// vehicle rear wheel sideslip angle
-        float s_beta;					// vehicle body sideslip angle
-        float s_slipRatio;				// stores the slip ratio of the vehicle
-        float s_netTorque;				// sum of torque acting on the rear axle
-        float s_rpm;					// revolutions per minute of the engine
-        float s_fwAngVelocity;			// stores the angular velocity of the front wheels
-        float s_bwAngVelocity;			// stores the angular velocity of the back wheels
-        float s_bwAngAcceleration;		// stores the angular acceleration of the back wheels
-        float s_wheelIntertia;			// stores the intertia of the wheel cylinder
-        float s_maxTorque;				// stores the maximum torque tapped from the engine
-        float s_engineForce;			// torque supplied by the vehicle engine
-        float s_absoluteForce;			// result of forces acting on vehicle
-        float s_weightForce;			// force acting on vehicle due to ground inclinations
-        float s_throttleAmount;			// percentage of engine torque tapped by the throttle position
-        float s_brakeAmount;			// percentage of force on the wheels to break
-        float s_dragConstant;			// constant coefficient of drag
-        float s_speed;					// speed of the vehicle
-        float s_rollResistanceConstant;	// constant coefficient of roll resistance
-        float s_brakeForce;				// constant coefficient of breaking
-        float s_blwMaxTraction;			// stores the back left wheel maximum traction force
-        float s_brwMaxTraction;			// stores the back right wheel maximum traction force
-        float s_flwMaxTraction;			// stores the front left wheel maximum traction force
-        float s_frwMaxTraction;			// stores the front right wheel maximum traction force
-        float s_blwMaxTorque;			// stores the back left wheel torque opposing the engine force
-        float s_brwMaxTorque;			// stores the back right wheel torque opposing the engine force
+        int s_gear;						
+        int s_ogear;					
+        int s_dir;						
+        float s_lsRadius;				
+        float s_hsRadius;				
+        float s_centripetalForce;		
+        float s_frontLateralForce;		
+        float s_rearLateralForce;		
+        float s_frontCornerStiff;		
+        float s_rearCornerStiff;		
+        float s_omega;					
+        float s_frontAlpha;				
+        float s_rearAlpha;				
+        float s_beta;					
+        float s_slipRatio;				
+        float s_netTorque;				
+        float s_rpm;					
+        float s_fwAngVelocity;			
+        float s_bwAngVelocity;			
+        float s_bwAngAcceleration;		
+        float s_wheelIntertia;			
+        float s_maxTorque;				
+        float s_engineForce;			
+        float s_absoluteForce;			
+        float s_weightForce;			
+        float s_throttleAmount;			
+        float s_brakeAmount;			
+        float s_dragConstant;			
+        float s_speed;					
+        float s_rollResistanceConstant;	
+        float s_brakeForce;				
+        float s_blwMaxTraction;			
+        float s_brwMaxTraction;			
+        float s_flwMaxTraction;			
+        float s_frwMaxTraction;			
+        float s_blwMaxTorque;			
+        float s_brwMaxTorque;			
 
-        float s_vehicleWeight;			// weight of the entire vehicle
-        float s_wheelWeight;			// weight of one single wheel
-        float s_flwWeight;				// weight of front left wheel
-        float s_frwWeight;				// weight of front right wheel
-        float s_blwWeight;				// weight of back left wheel
-        float s_brwWeight;				// weight of back right wheel
+        float s_vehicleWeight;			
+        float s_wheelWeight;			
+        float s_flwWeight;				
+        float s_frwWeight;				
+        float s_blwWeight;				
+        float s_brwWeight;				
 
-        float s_inertia;				// inertia of the vehicle
-        float s_bodyCurveX;				// stores the body x axis curve angle
-        float s_bodyCurveY;				// stores the body y axis curve angle 
-        float s_bodyCurveZ;				// stores the body z axis curve angle
-        float s_flwCurveAng;			// stores the front left wheel y axis curve anlge
-        float s_frwCurveAng;			// stores the front right wheel y axis curve angle
+        float s_inertia;				
+        float s_bodyCurveY;				
+        float s_flwCurveAng;			
+        float s_frwCurveAng;			
 
         /*
          * Vectores
          */
 
-        Vector3 v_brakingForce;			// force applied on wheels to stop motion
-        Vector3 v_tractionForce;		// force delivered to wheels by the engine
-        Vector3 v_dragForce;			// air resistance on the car body
-        Vector3 v_rollResistanceForce;	// friction between wheel and road, axle etc
-        Vector3 v_longitudinalForce;	// force in the direction of the car body	
-        Vector3 v_velocity;				// velocity Vector3 of the vehicle
-        Vector3 v_acceleration;			// acceleration due to gravity on the vehicle
-        Vector3 v_position;				// position of the vehicle
-        Vector3 v_oldPosition;			// old position of the vehicle
-        Vector3 v_sCOG;					// stores the source centre of gravity
-        Vector3 v_rCOG;					// stores the result centre of gravity
-        Vector3 v_turnFriction;			// force opposing motion of vehicle when turning
-        Vector3 v_flwSPos;				// stores the source position for the front left wheel
-        Vector3 v_flwRPos;				// stores the result position for the front left wheel
-        Vector3 v_frwSPos;				// stores the source position for the front right wheel
-        Vector3 v_frwRPos;				// stores the result position for the front right wheel
-        Vector3 v_blwSPos;				// stores the source position for the back left wheel
-        Vector3 v_blwRPos;				// stores the result position for the back left wheel
-        Vector3 v_brwSPos;				// stores the source position for the back right wheel
-        Vector3 v_brwRPos;				// stores the result position for the back right wheel
+        Vector3 v_brakingForce;			
+        Vector3 v_tractionForce;		
+        Vector3 v_dragForce;			
+        Vector3 v_rollResistanceForce;	
+        Vector3 v_longitudinalForce;		
+        Vector3 v_velocity;				
+        Vector3 v_acceleration;			
+        Vector3 v_position;				
+        Vector3 v_oldPosition;			
+        Vector3 v_sCOG;					
+        Vector3 v_rCOG;					
+        Vector3 v_turnFriction;			
+        Vector3 v_flwSPos;				
+        Vector3 v_flwRPos;				
+        Vector3 v_frwSPos;				
+        Vector3 v_frwRPos;				
+        Vector3 v_blwSPos;				
+        Vector3 v_blwRPos;				
+        Vector3 v_brwSPos;				
+        Vector3 v_brwRPos;				
 
         /*
 		 * Variables varias
          */
-		bool breaking;					// determines if vehicle is breaking
-		bool freeMoving;				// determines if vehicle not under engine force
-		bool gKey;						// to enforce one touch gear key pressing
+		bool breaking;					
+		bool freeMoving;				
+		bool gKey;						
 
         public float delta_t;           // Elapsed time
 
@@ -174,6 +172,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
         public Vector3 VPosition { get { return v_position; } }
         public Vector3 VVelocity { get { return v_velocity; } }
         public float SOmega { get { return s_omega; } }
+
 
 
         public Vehicle(String path, Vector3 initialPosition, TgcSceneLoader loader, IUserControls userControls)
@@ -1237,9 +1236,7 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
 			s_omega						= 0.0f;
 			s_inertia					= 0.0833f * make.mass * (FastMath.Pow2(make.bodyLength) + FastMath.Pow2(make.bodyWidth) + FastMath.Pow2(make.bodyHeight));
 
-			s_bodyCurveX				= 0.0f;
 			s_bodyCurveY				= 0.0f;
-			s_bodyCurveZ				= 0.0f;
 			s_flwCurveAng				= 0.0f;
 			s_frwCurveAng				= 0.0f;
 
@@ -1316,7 +1313,6 @@ namespace AlumnoEjemplos.LucasArtsTribute.VehicleModel
             sw.WriteLine("brw weight: " + s_brwWeight);
             sw.WriteLine("max torque: " + s_maxTorque);
             sw.WriteLine("longitudinal: " + v_longitudinalForce.Length());
-
             */
         }
 

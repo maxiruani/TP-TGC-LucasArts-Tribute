@@ -21,8 +21,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         TgcText2d textCambio;
 
-        TgcText2d textVelocity;
-
         //Bandera de Aceleracion (no importa si es para adelante o atras)
         public bool acelera;
         float rotacionTaquimetro;
@@ -72,19 +70,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             //Renderizar textoCambio
             textCambio.render();
-            textVelocity.render();
         }
 
         public void setVelocidad(float velocidad, float rpm)
         {
-            textVelocity = new TgcText2d();
-            textVelocity.Text = velocidad.ToString();
-            textVelocity.Color = Color.Red;
-            textVelocity.Align = TgcText2d.TextAlign.LEFT;
-            textVelocity.Position = new Point(screenSize.Width - 130, screenSize.Height - 170);
-            textVelocity.Size = new Size(75, 25);
-            textVelocity.changeFont(new System.Drawing.Font("TimesNewRoman", 14, FontStyle.Bold));
-
             agujaVelocidad.Rotation = Geometry.DegreeToRadian(velocidad * 270 / 180);
 
             rotacionTaquimetro = MathHelper.CurveAngle(-(rpm / 6000.0f) * MathHelper.PI, rotacionTaquimetro, 1.01f, GuiController.Instance.ElapsedTime);
@@ -96,7 +85,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
             
             //Crear textoCambio, especificando color, alineación, posición, tamaño y fuente.
             textCambio = new TgcText2d();
-            textCambio.Text = s_gear.ToString();
+            if (s_gear == 0)
+                textCambio.Text = "R";
+            else
+                textCambio.Text = s_gear.ToString();
+
             textCambio.Color = Color.Red;
             textCambio.Align = TgcText2d.TextAlign.LEFT;
             textCambio.Position = new Point(screenSize.Width - 140, screenSize.Height - 180);
@@ -112,7 +105,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             agujaTacometro.dispose();
             agujaVelocidad.dispose();
             textCambio.dispose();
-            textVelocity.dispose();
         }
     }
     
