@@ -101,7 +101,7 @@
     <Compile Include="LucasArtsTribute\Car\CorvetteCar.cs" />
     <Compile Include="LucasArtsTribute\Car\Stats.cs" />
     <Compile Include="LucasArtsTribute\Car\Vector.cs" />
-    <Compile Include="LucasArtsTribute\Circuit\Obstacle.cs" />
+    <Compile Include="LucasArtsTribute\Circuit\Checkpoint.cs" />
     <Compile Include="LucasArtsTribute\Components\LATMesh.cs" />
     <Compile Include="LucasArtsTribute\EjemploAlumno.cs" />
     <Compile Include="LucasArtsTribute\Car\Instrumental.cs" />

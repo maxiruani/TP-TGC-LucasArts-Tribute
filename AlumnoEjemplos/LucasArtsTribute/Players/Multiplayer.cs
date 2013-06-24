@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using AlumnoEjemplos.LucasArtsTribute.Circuit;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using TgcViewer;
@@ -15,8 +16,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     class Multiplayer
     {
-        public static List<Player> CreateMultiplayer(TgcBox piso, String configurationCar1, String configurationCar2, TgcSkyBox skyBox)
+        public static List<Player> CreateMultiplayer(TgcBox piso, String configurationCar1, String configurationCar2, TgcSkyBox skyBox, List<NosBottle> nosBottles)
         {
+            _nosBottles = nosBottles;
             _skyBox = skyBox;
             _originalWidth = GuiController.Instance.D3dDevice.Viewport.Width;
             _originalHeight = GuiController.Instance.D3dDevice.Viewport.Height;
@@ -80,8 +82,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             d3dDevice.BeginScene();
             players[0].Cam.Enable = false;
             players[1].Cam.Enable = true;
-            players[0].RenderPlayer(elapsedTime);
-            players[1].RenderPlayer(elapsedTime);
+            players[0].RenderPlayer(elapsedTime, _nosBottles);
+            players[1].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
 
             d3dDevice.EndScene();
@@ -99,15 +101,15 @@ namespace AlumnoEjemplos.LucasArtsTribute
             d3dDevice.BeginScene();
             players[0].Cam.Enable = true;
             players[1].Cam.Enable = false;
-            players[0].RenderPlayer(elapsedTime);
-            players[1].RenderPlayer(elapsedTime);
+            players[0].RenderPlayer(elapsedTime, _nosBottles);
+            players[1].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
             d3dDevice.EndScene();
 
             //LightAndReflection();
             /*
             
-            foreach (Obstacle obstacle in _obstacles)
+            foreach (Checkpoint obstacle in _obstacles)
             {
                 obstacle.Render();
                 TgcCollisionUtils.BoxBoxResult result = TgcCollisionUtils.classifyBoxBox(obstacle.ObstacleBox.BoundingBox, car.Mesh.BoundingBox);
@@ -154,5 +156,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private static Viewport _downViewPort;
         private static Viewport _upViewPort;
         private static TgcSkyBox _skyBox;
+        private static List<NosBottle> _nosBottles;
     }
 }

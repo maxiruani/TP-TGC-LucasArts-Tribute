@@ -17,7 +17,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         public OrientedBoundingBox()
         {
-            _renderColor = Color.Yellow.ToArgb();
+           // _renderColor = Color.Yellow.ToArgb();
             _dirtyValues = true;
             AlphaBlendEnable = false;
         }
@@ -27,7 +27,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             : this()
         {
             _car = car;
-            
+
             _axis[0] = new Vector3(1, 0, 0);
             _axis[1] = new Vector3(0, 1, 0);
             _axis[2] = new Vector3(0, 0, 1);
@@ -36,6 +36,26 @@ namespace AlumnoEjemplos.LucasArtsTribute
             _originalCenter = car.body.BoundingBox.calculateBoxCenter();
 
             Vector3 radios = car.body.BoundingBox.calculateAxisRadius();
+            float[] mediaLongitud = new float[] { radios.X, radios.Y, radios.Z };
+
+            _mediaLongitudAxis = mediaLongitud;
+            _originalMediaLongitudAxis[0] = mediaLongitud[0];
+            _originalMediaLongitudAxis[1] = mediaLongitud[1];
+            _originalMediaLongitudAxis[2] = mediaLongitud[2];
+        }
+
+        public OrientedBoundingBox(Vector3 center, Vector3 size)// Vector3 centro, Vector3 axisX, Vector3 axisY, Vector3 axisZ, float[] mediaLongAxis)
+            : this()
+        {
+
+            _axis[0] = new Vector3(1, 0, 0);
+            _axis[1] = new Vector3(0, 1, 0);
+            _axis[2] = new Vector3(0, 0, 1);
+            _center = center;
+
+            _originalCenter = center;
+
+            Vector3 radios = size;
             float[] mediaLongitud = new float[] { radios.X, radios.Y, radios.Z };
 
             _mediaLongitudAxis = mediaLongitud;
@@ -221,15 +241,18 @@ namespace AlumnoEjemplos.LucasArtsTribute
         {
             _center = _car.body.BoundingBox.calculateBoxCenter();
             _dirtyValues = true;
+            _angle = _car.SOmega;
             Rotar();
         }
 
+
+        private float _angle;
         private void Rotar()
         {
-            float angle = Geometry.DegreeToRadian(_car.SOmega);
-            Vector3 rotation = new Vector3(0, angle, 0);
+            float angle = Geometry.DegreeToRadian(_angle);
+            Vector3 rotation = new Vector3(0, angle , 0);
             Vector3[] newAxis = new Vector3[3];
-
+            
             Matrix rotMat = Matrix.RotationYawPitchRoll(-rotation.Y, -rotation.X, -rotation.Z);
 
             Matrix axisActual = new Matrix();
