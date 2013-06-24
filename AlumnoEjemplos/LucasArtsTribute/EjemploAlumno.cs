@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Threading;
 using AlumnoEjemplos.LucasArtsTribute.Circuit;
 using AlumnoEjemplos.LucasArtsTribute.Sound;
 using AlumnoEjemplos.LucasArtsTribute.VehicleModel;
@@ -107,7 +108,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
             if (playersCount == 1)
             {
                 String config = GuiController.Instance.AlumnoEjemplosMediaDir + "LucasArtsTribute\\Cars\\C5\\C5.txt";
-                var player = new Player(scenario, config, new Vector3(5, -50, 5), 1);
+                var player = new Player(scenario, config, new Vector3(5, -50, 5), 1, false);
                     //Envío la superficie, la configuración y la posicion inicial
                 _players.Add(player);
             }
@@ -149,11 +150,12 @@ namespace AlumnoEjemplos.LucasArtsTribute
                     else
                         return;
                     init();
-                    //SetCarParameters(NumberOfPlayers);
+                    _showingPresentation = false;
+                    _isGameStarted = true;
+                    return;
                 }
             }
-            _showingPresentation = false;
-            _isGameStarted = true;
+
 
 
             //Device de DirectX para renderizar

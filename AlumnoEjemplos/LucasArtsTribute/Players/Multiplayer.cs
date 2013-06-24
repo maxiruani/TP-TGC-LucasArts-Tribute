@@ -21,6 +21,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
     {
         public static List<Player> CreateMultiplayer(TgcBox piso, String configurationCar1, String configurationCar2, TgcSkyBox skyBox, List<NosBottle> nosBottles)
         {
+            GuiController.Instance.CustomRenderEnabled = true;
             _nosBottles = nosBottles;
             _skyBox = skyBox;
             _originalWidth = GuiController.Instance.D3dDevice.Viewport.Width;
@@ -28,20 +29,16 @@ namespace AlumnoEjemplos.LucasArtsTribute
             List<Player> players = new List<Player>();
 
             Vector3 initialPosition = new Vector3(100, -50, 0);
-            Player player = new Player(piso, configurationCar1, initialPosition, 1);
+            Player player = new Player(piso, configurationCar1, initialPosition, 1, true);
             players.Add(player);
             _downViewPort = RightViewPortCreate();
 
             initialPosition = new Vector3(10, -50, 0);
-            player = new Player(piso, configurationCar2, initialPosition, 2);
+            player = new Player(piso, configurationCar2, initialPosition, 2, true);
             players.Add(player);
             _upViewPort = LeftViewPortCreate();
-
             _crashSound = new LATSound("LucasArtsTribute\\auto_choque.wav");
-
-
-            GuiController.Instance.CustomRenderEnabled = true;
-
+            
 
             return players;
         }

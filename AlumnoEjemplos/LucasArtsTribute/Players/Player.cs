@@ -15,9 +15,10 @@ namespace AlumnoEjemplos.LucasArtsTribute
 {
     public class Player
     {
-        public Player(TgcBox scenario, String carConfiguration, Vector3 initialPosition, int numberOfPlayer)
+        public Player(TgcBox scenario, String carConfiguration, Vector3 initialPosition, int numberOfPlayer, bool isMultiplayer)
         {
             _playerNumber = numberOfPlayer;
+            _isMultiplayer = isMultiplayer;
             Car = new Vehicle(carConfiguration, initialPosition, Loader, UserControlsFactory.Create(numberOfPlayer));
             Piso = scenario;
             Cam = new Camara(initialPosition);
@@ -27,7 +28,8 @@ namespace AlumnoEjemplos.LucasArtsTribute
             _nosRecolectedSound = new LATSound("LucasArtsTribute\\NosBottleSound.wav");
             NosCount = 0;
             //Reflejo en el auto
-            _carReflection = new CarReflection(Car);
+            if (!isMultiplayer)
+                _carReflection = new CarReflection(Car);
         }
 
         private void LoadCamara(bool teleport)
@@ -89,7 +91,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         private void LightAndReflection()
         {
-            if(_playerNumber==1)
+            if (_playerNumber == 1 && !_isMultiplayer)
                _carReflection.Render();
         }
 
@@ -111,6 +113,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private readonly CarReflection _carReflection;
         private int _playerNumber;
         private Sound.LATSound _nosRecolectedSound;
+        private bool _isMultiplayer;
         public int NosCount { get; set; }
 
     }
