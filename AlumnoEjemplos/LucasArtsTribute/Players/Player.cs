@@ -25,14 +25,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             Cam.Enable = true;
             LoadCamara(true);
             _nosRecolected = new LATSound("LucasArtsTribute\\NosBottleSound.wav");
-            /*
-             * Se configura el reflejo sobre el auto. (CarReflection)
-             * Se crea un Box para que simule ser el sol. Hay que mejorar esto.
-             */
+
             //Reflejo en el auto
             _carReflection = new CarReflection(Car);
-            /*//Crear caja para indicar ubicacion de la luz
-            lightBox = TgcBox.fromSize(new Vector3(100, 100, 100), Color.Yellow);*/
         }
 
         private void LoadCamara(bool teleport)

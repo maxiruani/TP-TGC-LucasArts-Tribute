@@ -151,9 +151,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
                 _skyBox.render();
                 _nosBottles.ForEach(item => item.Render());
             }
-
-
-
         }
 
         
@@ -168,10 +165,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
                                              "LucasArtsTribute\\Presentation\\AudiTT.jpg");
                 presentationImage.Position = new Vector2(0, 0);
                 presentationImage.Scaling = new Vector2(0.6f, 0.6f);
+                
                 presentationText = new TgcText2d();
                 presentationText.Color = Color.OrangeRed;
                 presentationText.Text = "Presione espacio para comenzar.";
-                presentationText.Size = new Size(100, 20);
+                presentationText.Size = new Size(100, 100);
                 presentationText.Position = new Point(0, 0);
                 sound = new Mp3("LucasArtsTribute\\Presentation\\Daytona.mp3");
                 _presentationLoad = true;
@@ -192,36 +190,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
             Device d3DDevice = GuiController.Instance.D3dDevice;
             TgcTexture pisoTexture = TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\circuito.jpg");
             scenario = TgcBox.fromSize(new Vector3(0, -60, 0), new Vector3(5000, 5, 5000), pisoTexture);
-
-            obstaculos = new List<TgcBox>();
-            //Pared1
-            TgcBox obstaculo = TgcBox.fromSize(
-                new Vector3(0, 0, 2500),
-                new Vector3(5000, 150, 80),
-                TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared2
-            obstaculo = TgcBox.fromSize(
-               new Vector3(0, 0, -2500),
-               new Vector3(5000, 150, 80),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared3
-            obstaculo = TgcBox.fromSize(
-               new Vector3(2500, 0, 0),
-               new Vector3(80, 150, 5000),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
-            //Pared4
-            obstaculo = TgcBox.fromSize(
-               new Vector3(-2500, 0, 0),
-               new Vector3(80, 150, 5000),
-               TgcTexture.createTexture(d3DDevice, _alumnoMediaFolder + "LucasArtsTribute\\Texturas\\TexturePack2\\rock_wall.jpg"));
-            obstaculos.Add(obstaculo);
-
             _nosBottles = Checkpoint.CreateAllCheckPoints();
         }
 

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using AlumnoEjemplos.LucasArtsTribute.Circuit;
+using AlumnoEjemplos.LucasArtsTribute.Sound;
 using Microsoft.DirectX;
 using Microsoft.DirectX.Direct3D;
 using TgcViewer;
@@ -34,6 +35,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             players.Add(player);
             _upViewPort = LeftViewPortCreate();
 
+            _crashSound = new LATSound("LucasArtsTribute\\auto_choque.wav");
+
+
             GuiController.Instance.CustomRenderEnabled = true;
 
 
@@ -48,12 +52,11 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             int a = 0;
 
-            /*
-            if (Collision.TestOBB_Vs_OBB(players[0].Car.Obb, players[1].Car.Obb))
+            if (Collision.TestOBB_Vs_OBB(players[0].Car.OBB, players[1].Car.OBB))
             {
-                
+                _crashSound.Play();
             }
-            */
+            
 
             DownViewPort(GuiController.Instance.D3dDevice, players);
             //_skyBox.render();
@@ -157,5 +160,6 @@ namespace AlumnoEjemplos.LucasArtsTribute
         private static Viewport _upViewPort;
         private static TgcSkyBox _skyBox;
         private static List<NosBottle> _nosBottles;
+        private static LATSound _crashSound;
     }
 }
