@@ -12,6 +12,8 @@ using Microsoft.DirectX.Direct3D;
 using TgcViewer;
 using TgcViewer.Utils.Terrain;
 using TgcViewer.Utils.TgcGeometry;
+using TgcViewer.Utils._2D;
+using Font = System.Drawing.Font;
 
 namespace AlumnoEjemplos.LucasArtsTribute
 {
@@ -68,6 +70,21 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
             GuiController.Instance.D3dDevice.Present();
 
+            if (_nosBottles.All(item => item.Enable == false))
+            {
+                String winnerMessage = "El ganador es ";
+                if (players[0].NosCount > players[1].NosCount)
+                    winnerMessage += "Player 1";
+                else
+                    winnerMessage += "Player 2";
+                TgcText2d winnerText2D = new TgcText2d();
+                winnerText2D.Color = Color.OrangeRed;
+                winnerText2D.Text = winnerMessage;
+                winnerText2D.Size = new Size(500, 400);
+                winnerText2D.changeFont(new Font("Times New Roman", 25.0f));
+                winnerText2D.Position = new Point(200,100);
+                winnerText2D.render();
+            }
         }
 
 
@@ -88,8 +105,9 @@ namespace AlumnoEjemplos.LucasArtsTribute
             players[0].RenderPlayer(elapsedTime, _nosBottles);
             players[1].RenderPlayer(elapsedTime, _nosBottles);
             _skyBox.render();
-
             d3dDevice.EndScene();
+
+
         }
 
         private static void UpViewPort(Device d3dDevice, List<Player> players)

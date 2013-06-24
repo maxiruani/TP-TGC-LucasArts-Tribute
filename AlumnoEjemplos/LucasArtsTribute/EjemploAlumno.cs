@@ -179,7 +179,7 @@ namespace AlumnoEjemplos.LucasArtsTribute
                                              "LucasArtsTribute\\Presentation\\AudiTT.jpg");
                 presentationImage.Position = new Vector2(0, 0);
                 presentationImage.Scaling = new Vector2(0.6f, 0.6f);
-                
+
                 presentationText = new TgcText2d();
                 presentationText.Color = Color.OrangeRed;
                 presentationText.Text = "Presione 1 para un player o 2 para dos players.";
