@@ -93,10 +93,12 @@ namespace AlumnoEjemplos.LucasArtsTribute
 
         public void setCambio(int s_gear)
         {
-            
+            String gear = s_gear.ToString();
+            if (s_gear == 0)
+                gear = "R";
             //Crear textoCambio, especificando color, alineación, posición, tamaño y fuente.
             textCambio = new TgcText2d();
-            textCambio.Text = s_gear.ToString();
+            textCambio.Text = gear;
             textCambio.Color = Color.Red;
             textCambio.Align = TgcText2d.TextAlign.LEFT;
             textCambio.Position = new Point(screenSize.Width - 140, screenSize.Height - 180);
